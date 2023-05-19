@@ -32,8 +32,8 @@ SECRET_KEY = os.environ["DJANGO_KEY"]
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "db-api-conext.us-west-2.elasticbeanstalk.com",
-    "http://db-api-conext.us-west-2.elasticbeanstalk.com",
+    "db-api.us-west-2.elasticbeanstalk.com",
+    "http://db-api.us-west-2.elasticbeanstalk.com",
     "db-api.conext.net.ve",
     "127.0.0.1",
     "localhost",
