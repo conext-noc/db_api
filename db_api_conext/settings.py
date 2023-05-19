@@ -95,11 +95,11 @@ WSGI_APPLICATION = "db_api_conext.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "your_database_name",
-        "USER": "your_username",
-        "PASSWORD": "your_password",
-        "HOST": "your_ec2_instance_public_ip",
-        "PORT": "your_postgresql_port",
+        "NAME": os.environ["DB_NAME"],
+        "USER": os.environ["DB_USER"],
+        "PASSWORD": os.environ["DB_PASSWORD"],
+        "HOST": os.environ["DB_HOST"],
+        "PORT": os.environ["DB_PORT"],
     }
 }
 
