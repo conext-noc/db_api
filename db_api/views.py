@@ -2,6 +2,7 @@ import os
 from rest_framework.response import Response
 from rest_framework import generics
 from django.http import HttpResponse
+from django.contrib.auth.hashers import check_password
 from dotenv import load_dotenv
 from db_api.db import get_user_by_email, add_user
 
@@ -18,10 +19,10 @@ class DbApi(generics.GenericAPIView):
 class SignIn(generics.GenericAPIView):
     def post(self, request):
         data = request.data
-        if data["API_KEY"] == os.environ["API_KEY"]:
-            return HttpResponse("Unauthorized", status=401)
+        if data["API_KEY"] != os.environ["API_KEY"]:
+            return HttpResponse("Unauthorized?", status=401)
         res = get_user_by_email(data["email"])
-        if res["password"] != data["password"]:
+        if check_password(res["password"], data["password"]):
             return Response(
                 {
                     "message": "Bad Credentials",
