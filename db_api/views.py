@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.contrib.auth.hashers import check_password
 from dotenv import load_dotenv
 from db_api.db import get_user_by_email, add_user
+from db_api.jwt_utils import generate_token
 
 load_dotenv()
 
@@ -31,10 +32,12 @@ class SignIn(generics.GenericAPIView):
                 },
                 status=401,
             )
+        (token, exp_time) = generate_token(data["email"])
         return Response(
             {
                 "message": "Signed In",
-                "User": data,
+                "token": token,
+                "exp_time": exp_time,
             },
             status=200,
         )
