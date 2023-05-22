@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import DbApi, SignIn, AddUser
+from db_api.views import DbApi, SignIn, AddUser
 
 urlpatterns = [
     path("", DbApi.as_view()),

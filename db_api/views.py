@@ -10,8 +10,11 @@ load_dotenv()
 
 
 class DbApi(generics.GenericAPIView):
-    def get(self):
-        return HttpResponse("ms_running", status=200)
+    def get(self, req):
+        print(req)
+        status_code = 200
+        response_text = "ms_running"
+        return HttpResponse(response_text, status=status_code)
 
 
 class SignIn(generics.GenericAPIView):
