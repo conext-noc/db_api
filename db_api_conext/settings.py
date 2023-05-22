@@ -40,8 +40,12 @@ ALLOWED_HOSTS = [
 ]
 
 # USE OF CORS
-CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://conext.net.ve"]
-CORS_ALLOW_CREDENTIALS = False
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://conext.net.ve",
+    "http://localhost:8000",
+]
+CORS_ALLOW_CREDENTIALS = True
 
 
 # Application definition
