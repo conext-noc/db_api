@@ -29,7 +29,7 @@ SECRET_KEY = os.environ["DJANGO_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     "db-api.us-west-2.elasticbeanstalk.com",
@@ -40,8 +40,8 @@ ALLOWED_HOSTS = [
 ]
 
 # USE OF CORS
-CORS_ALLOWED_ORIGINS = ["http://localhost:8000"]
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://conext.net.ve"]
+CORS_ALLOW_CREDENTIALS = False
 
 
 # Application definition
@@ -66,6 +66,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "db_api_conext.urls"
