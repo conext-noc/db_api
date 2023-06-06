@@ -1,10 +1,6 @@
 from django.contrib.auth.hashers import make_password
 from db_api.models import User, Client
 
-# import os
-# import re
-# import json
-
 
 def get_user_by_email(email):
     try:
@@ -89,23 +85,39 @@ def delete_client(contract):
         return {"message": "Client does not exist.", "client": None}
 
 
-# def populate_clients():
-#     directory = "./ports_updated"
-#     file_names = []
-#     ports = []
-#     for root, dirs, files in os.walk(directory):
-#         for file in files:
-#             file_names.append(file)
-#     for json_file in file_names:
-#         with open(f"{directory}/{json_file}", "r") as f:
-#             clients = json.loads(f.read())
-#             for client in clients:
-#                 full_name = client["name"].strip()
-#                 full_name = re.sub(r"\.\d+", "", full_name)
-#                 del client["pwr"]
-#                 del client["name"]
-#                 client["name_1"] = full_name.split(" ")[0]
-#                 client["name_2"] = full_name.split(" ")[1]
-#                 client["contract"] = full_name.split(" ")[2].zfill(10)
-#                 client = Client(**client)
-#                 client.save()
+def modify_client(contract, change_field, new_values):
+    fields = [
+        "CO",
+        "CT",
+        "CP",
+        "CV",
+        "OX",
+    ]
+    if change_field not in fields:
+        return {"message": "bad type", "client": None}
+
+    try:
+        client = Client.objects.get(contract=contract)
+
+        if change_field == "CT":
+            client.name_1 = new_values["name_1"]
+            client.name_2 = new_values["name_2"]
+            client.contract = new_values["contract"]
+            contract = new_values["contract"]
+
+        elif change_field == "CO":
+            client.sn = new_values["sn"]
+
+        elif change_field == "CP":
+            client.plan = new_values["plan"][:-2]
+            client.vlan = new_values["provider"]
+
+        elif change_field == "OX":
+            client.state = new_values["state"]
+
+        client.save()
+        client = Client.objects.get(contract=contract)
+        return {"message": "Client updated successfully!", "client": client}
+
+    except Client.DoesNotExist:
+        return {"message": "Client does not exist.", "client": None}

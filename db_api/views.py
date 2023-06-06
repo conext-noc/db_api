@@ -10,8 +10,10 @@ from db_api.db import (
     add_client,
     get_client_by_contract,
     delete_client,
+    modify_client,
 )
 from db_api.jwt_utils import generate_token
+from db_api.ms_health_status import get_health_status
 
 load_dotenv()
 
@@ -60,16 +62,19 @@ class AddUser(generics.GenericAPIView):
 
 
 class MsHealthCheck(generics.GenericAPIView):
-    def get(self, _):
-        # if req.META["HTTP_CONEXT_KEY"] == os.environ["CONEXT_KEY"]:
-        # data = request.data
-        # if data["API_KEY"] != os.environ["API_KEY"]:
-        #     return HttpResponse("Unauthorized", status=401)
-        # res = add_user(data["email"], data["password"], data["userType"])
-        return Response({"message": "ok"}, status=200)
+    def get(self, req):
+        data = req.data
+        if req.META["API_KEY"] != os.environ["API_KEY"]:
+            return HttpResponse("Unauthorized", status=401)
+        if data["API_KEY"] != os.environ["API_KEY"]:
+            return HttpResponse("Unauthorized", status=401)
+        res = get_health_status()
+        return Response(res, status=200)
 
 
 class Client(generics.GenericAPIView):
+    # MODIFY ALL METHODS [MAY CREATE NEW CLASSES]
+    # MODIFY ALL METHODS TO LOOK FOR SN, DATA OR CONTRACT
     def get(self, request):
         if request.META["API_KEY"] != os.environ["API_KEY"]:
             return HttpResponse("Unauthorized", status=401)
@@ -108,5 +113,17 @@ class Client(generics.GenericAPIView):
         return Response(res, status=200)
 
     # add patch method to update the given client
+    def patch(self, request):
+        data = request.data
+        if request.META["API_KEY"] != os.environ["API_KEY"]:
+            return HttpResponse("Unauthorized", status=401)
+        contract = data["contract"]
+        new_values = data["new_values"]
+        change_field = data["change_field"]
+        res = modify_client(contract, change_field, new_values)
+        if res["client"] is None:
+            return Response(res, status=500)
+        return Response(res, status=200)
+
     # once finished this method finish up the mod ms
     # then update th oltOperations to work with this db
