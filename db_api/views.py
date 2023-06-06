@@ -62,34 +62,30 @@ class AddUser(generics.GenericAPIView):
 
 
 class MsHealthCheck(generics.GenericAPIView):
-    def get(self, req):
+    def post(self, req):
         data = req.data
-        if req.META["API_KEY"] != os.environ["API_KEY"]:
-            return HttpResponse("Unauthorized", status=401)
         if data["API_KEY"] != os.environ["API_KEY"]:
             return HttpResponse("Unauthorized", status=401)
         res = get_health_status()
         return Response(res, status=200)
 
 
-class Client(generics.GenericAPIView):
-    # MODIFY ALL METHODS [MAY CREATE NEW CLASSES]
-    # MODIFY ALL METHODS TO LOOK FOR SN, DATA OR CONTRACT
-    def get(self, request):
-        if request.META["API_KEY"] != os.environ["API_KEY"]:
+class GetClient(generics.GenericAPIView):
+    # add find type
+    def post(self, request):
+        if request.data["API_KEY"] != os.environ["API_KEY"]:
             return HttpResponse("Unauthorized", status=401)
-        contract = request.query_params.get("contract")
+        contract = request.data["contract"]
         res = get_client_by_contract(contract)
         if res["client"] is None:
             return Response(res, status=500)
         return Response(res, status=200)
 
+
+class AddClient(generics.GenericAPIView):
     def post(self, request):
         data = request.data
-        if (
-            data["API_KEY"] != os.environ["API_KEY"]
-            and request.META["API_KEY"] != os.environ["API_KEY"]
-        ):
+        if data["API_KEY"] != os.environ["API_KEY"]:
             return HttpResponse("Unauthorized", status=401)
         client = data["client"]
         full_name = client["name"].strip()
@@ -103,19 +99,24 @@ class Client(generics.GenericAPIView):
             return Response(res, status=500)
         return Response(res, status=200)
 
-    def delete(self, request):
-        if request.META["API_KEY"] != os.environ["API_KEY"]:
+
+class RemoveClient(generics.GenericAPIView):
+    # add find type
+    def post(self, request):
+        if request.data["API_KEY"] != os.environ["API_KEY"]:
             return HttpResponse("Unauthorized", status=401)
-        contract = request.query_params.get("contract")
+        contract = request.data["contract"]
         res = delete_client(contract)
         if res["client"] is None:
             return Response(res, status=500)
         return Response(res, status=200)
 
-    # add patch method to update the given client
-    def patch(self, request):
+
+class UpdateClient(generics.GenericAPIView):
+    # add find type
+    def post(self, request):
         data = request.data
-        if request.META["API_KEY"] != os.environ["API_KEY"]:
+        if request.data["API_KEY"] != os.environ["API_KEY"]:
             return HttpResponse("Unauthorized", status=401)
         contract = data["contract"]
         new_values = data["new_values"]
