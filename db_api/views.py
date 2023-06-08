@@ -8,7 +8,7 @@ from db_api.db import (
     get_user_by_email,
     add_user,
     add_client,
-    get_client_by_contract,
+    get_client,
     delete_client,
     modify_client,
 )
@@ -73,10 +73,12 @@ class MsHealthCheck(generics.GenericAPIView):
 class GetClient(generics.GenericAPIView):
     # add find type
     def post(self, request):
-        if request.data["API_KEY"] != os.environ["API_KEY"]:
+        data = request.data
+        if data["API_KEY"] != os.environ["API_KEY"]:
             return HttpResponse("Unauthorized", status=401)
-        contract = request.data["contract"]
-        res = get_client_by_contract(contract)
+        lookup_type = data["lookup_type"]
+        lookup_value = data["lookup_value"]
+        res = get_client(lookup_type, lookup_value)
         if res["client"] is None:
             return Response(res, status=500)
         return Response(res, status=200)
@@ -103,10 +105,13 @@ class AddClient(generics.GenericAPIView):
 class RemoveClient(generics.GenericAPIView):
     # add find type
     def post(self, request):
-        if request.data["API_KEY"] != os.environ["API_KEY"]:
+        data = request.data
+        print(data)
+        if data["API_KEY"] != os.environ["API_KEY"]:
             return HttpResponse("Unauthorized", status=401)
-        contract = request.data["contract"]
-        res = delete_client(contract)
+        lookup_type = data["lookup_type"]
+        lookup_value = data["lookup_value"]
+        res = delete_client(lookup_type, lookup_value)
         if res["client"] is None:
             return Response(res, status=500)
         return Response(res, status=200)
@@ -118,10 +123,11 @@ class UpdateClient(generics.GenericAPIView):
         data = request.data
         if request.data["API_KEY"] != os.environ["API_KEY"]:
             return HttpResponse("Unauthorized", status=401)
-        contract = data["contract"]
+        lookup_type = data["lookup_type"]
+        lookup_value = data["lookup_value"]
         new_values = data["new_values"]
         change_field = data["change_field"]
-        res = modify_client(contract, change_field, new_values)
+        res = modify_client(lookup_type, lookup_value, change_field, new_values)
         if res["client"] is None:
             return Response(res, status=500)
         return Response(res, status=200)

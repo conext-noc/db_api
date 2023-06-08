@@ -1,5 +1,8 @@
 from django.contrib.auth.hashers import make_password
+from django.db.models import Q
 from db_api.models import User, Client
+
+lookup_types = ["S", "N", "D"]
 
 
 def get_user_by_email(email):
@@ -16,9 +19,25 @@ def get_user_by_email(email):
         return {"id": None, "email": None, "message": "An Error occurred!"}
 
 
-def get_client_by_contract(contract):
+def get_client(lookup_type, lookup_value):
+    if lookup_type not in lookup_types:
+        return {"message": "bad type", "client": None}
+
     try:
-        client = Client.objects.get(contract=contract)
+        if lookup_type == "S":
+            client = Client.objects.get(sn=lookup_value)
+        if lookup_type == "N":
+            client = Client.objects.get(contract=lookup_value)
+        if lookup_type == "D":
+            FRAME = lookup_value.split("/")[0]
+            SLOT = lookup_value.split("/")[1]
+            PORT = lookup_value.split("/")[2]
+            ONU_ID = lookup_value.split("/")[3]
+            print(FRAME, SLOT, PORT, ONU_ID)
+            client = Client.objects.filter(
+                Q(fsp=f"{FRAME}/{SLOT}/{PORT}") & Q(onu_id=ONU_ID)
+            )
+            print(client)
 
         returned_client = {
             field: getattr(client, field)
@@ -47,7 +66,7 @@ def get_client_by_contract(contract):
             "message": "success",
         }
     except Client.DoesNotExist:
-        return {"client": None, "message": "An Error occurred!"}
+        return {"client": None, "message": "Client does not exist!"}
 
 
 def add_user(email, password, userType):
@@ -67,7 +86,7 @@ def add_user(email, password, userType):
 def add_client(data):
     client = Client(**data)
     client.save()
-    client = get_client_by_contract(data["contract"])
+    client = get_client("N", data["contract"])
     if client["message"] == "success":
         return {
             "client": client,
@@ -76,16 +95,46 @@ def add_client(data):
     return {"client": None, "message": "An Error occurred!"}
 
 
-def delete_client(contract):
+def delete_client(lookup_type, lookup_value):
+    if lookup_type not in lookup_types:
+        return {"message": "bad type", "client": None}
+
     try:
-        client = Client.objects.get(contract=contract)
+        if lookup_type == "S":
+            client = Client.objects.get(sn=lookup_value)
+        if lookup_type == "N":
+            client = Client.objects.get(contract=lookup_value)
+        if lookup_type == "D":
+            client = Client.objects.get(fsp=lookup_value)
+        returned_client = {
+            field: getattr(client, field)
+            for field in [
+                "frame",
+                "slot",
+                "port",
+                "onu_id",
+                "name_1",
+                "name_2",
+                "contract",
+                "status",
+                "state",
+                "last_down_cause",
+                "last_down_time",
+                "last_down_date",
+                "sn",
+                "device",
+                "plan",
+                "vlan",
+                "fsp",
+            ]
+        }
         client.delete()
-        return {"message": "Client deleted successfully!", "client": client}
+        return {"message": "Client deleted successfully!", "client": returned_client}
     except Client.DoesNotExist:
         return {"message": "Client does not exist.", "client": None}
 
 
-def modify_client(contract, change_field, new_values):
+def modify_client(lookup_type, lookup_value, change_field, new_values):
     fields = [
         "CO",
         "CT",
@@ -93,11 +142,16 @@ def modify_client(contract, change_field, new_values):
         "CV",
         "OX",
     ]
-    if change_field not in fields:
+    if change_field not in fields or lookup_type not in lookup_types:
         return {"message": "bad type", "client": None}
 
     try:
-        client = Client.objects.get(contract=contract)
+        if lookup_type == "S":
+            client = Client.objects.get(sn=lookup_value)
+        if lookup_type == "N":
+            client = Client.objects.get(contract=lookup_value)
+        if lookup_type == "D":
+            client = Client.objects.get(fsp=lookup_value)
 
         if change_field == "CT":
             client.name_1 = new_values["name_1"]
