@@ -171,7 +171,29 @@ def modify_client(lookup_type, lookup_value, change_field, new_values):
 
         client.save()
         client = Client.objects.get(contract=contract)
-        return {"message": "Client updated successfully!", "client": client}
+        returned_client = {
+            field: getattr(client, field)
+            for field in [
+                "frame",
+                "slot",
+                "port",
+                "onu_id",
+                "name_1",
+                "name_2",
+                "contract",
+                "status",
+                "state",
+                "last_down_cause",
+                "last_down_time",
+                "last_down_date",
+                "sn",
+                "device",
+                "plan",
+                "vlan",
+                "fsp",
+            ]
+        }
+        return {"message": "Client updated successfully!", "client": returned_client}
 
     except Client.DoesNotExist:
         return {"message": "Client does not exist.", "client": None}
