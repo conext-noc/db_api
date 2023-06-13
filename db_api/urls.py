@@ -8,6 +8,7 @@ from db_api.views import (
     AddClient,
     UpdateClient,
     RemoveClient,
+    PopulateDB,
 )
 
 urlpatterns = [
@@ -19,5 +20,6 @@ urlpatterns = [
     path("update-client", UpdateClient.as_view()),
     path("remove-client", RemoveClient.as_view()),
     path("ms-health-check", MsHealthCheck.as_view()),
+    path("populate", PopulateDB.as_view()),
     # path("populate", AddAllClients.as_view()),
 ]

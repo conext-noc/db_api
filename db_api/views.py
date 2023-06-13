@@ -11,6 +11,7 @@ from db_api.db import (
     get_client,
     delete_client,
     modify_client,
+    populate,
 )
 from db_api.jwt_utils import generate_token
 from db_api.ms_health_status import get_health_status
@@ -42,9 +43,9 @@ class SignIn(generics.GenericAPIView):
             {
                 "message": "Signed In",
                 "token": token,
-                "exp_time": exp_time,
+                "expTime": exp_time,
                 "email": res["email"],
-                "userType": res["userType"],
+                "userType": res["user_type"],
             },
             status=200,
         )
@@ -71,7 +72,6 @@ class MsHealthCheck(generics.GenericAPIView):
 
 
 class GetClient(generics.GenericAPIView):
-    # add find type
     def post(self, request):
         data = request.data
         if data["API_KEY"] != os.environ["API_KEY"]:
@@ -103,7 +103,6 @@ class AddClient(generics.GenericAPIView):
 
 
 class RemoveClient(generics.GenericAPIView):
-    # add find type
     def post(self, request):
         data = request.data
         print(data)
@@ -118,7 +117,6 @@ class RemoveClient(generics.GenericAPIView):
 
 
 class UpdateClient(generics.GenericAPIView):
-    # add find type
     def post(self, request):
         data = request.data
         if request.data["API_KEY"] != os.environ["API_KEY"]:
@@ -134,3 +132,12 @@ class UpdateClient(generics.GenericAPIView):
 
     # once finished this method finish up the mod ms
     # then update th oltOperations to work with this db
+
+
+class PopulateDB(generics.GenericAPIView):
+    def get(self, request):
+        data = request.data
+        if request.data["API_KEY"] != os.environ["API_KEY"]:
+            return HttpResponse("Unauthorized", status=401)
+        res = populate(data["client_list"])
+        return Response(res, status=200)
