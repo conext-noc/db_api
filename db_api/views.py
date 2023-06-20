@@ -9,6 +9,7 @@ from db_api.db import (
     add_user,
     add_client,
     get_client,
+    get_clients,
     delete_client,
     modify_client,
     populate,
@@ -84,6 +85,19 @@ class GetClient(generics.GenericAPIView):
         return Response(res, status=200)
 
 
+class GetClients(generics.GenericAPIView):
+    def post(self, request):
+        data = request.data
+        if data["API_KEY"] != os.environ["API_KEY"]:
+            return HttpResponse("Unauthorized", status=401)
+        lookup_type = data["lookup_type"]
+        lookup_value = data["lookup_value"]
+        res = get_clients(lookup_type, lookup_value)
+        if res["client"] is None:
+            return Response(res, status=500)
+        return Response(res, status=200)
+
+
 class AddClient(generics.GenericAPIView):
     def post(self, request):
         data = request.data
@@ -135,7 +149,7 @@ class UpdateClient(generics.GenericAPIView):
 
 
 class PopulateDB(generics.GenericAPIView):
-    def get(self, request):
+    def post(self, request):
         data = request.data
         if request.data["API_KEY"] != os.environ["API_KEY"]:
             return HttpResponse("Unauthorized", status=401)

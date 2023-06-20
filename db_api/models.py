@@ -27,10 +27,17 @@ class Clients(models.Model):
     state = models.TextField(default="active")
     sn = models.TextField(default="48575443--------")
     device = models.TextField(default="EG145V5")
-    plan_name = models.TextField(default="OZ_0_1")
-    provider = models.TextField(default="INTER")
-    plan_idx = models.SmallIntegerField(default=210)
-    srv_profile = models.SmallIntegerField(default=210)
-    line_profile = models.SmallIntegerField(default=3)
-    gem_port = models.SmallIntegerField(default=20)
+    plan_name = models.ForeignKey(
+        "Plans", on_delete=models.CASCADE, to_field="plan_name", db_column="plan_name"
+    )
     spid = models.IntegerField(default=1)
+
+
+class Plans(models.Model):
+    plan_name = models.TextField(primary_key=True, unique=True)
+    plan_idx = models.IntegerField(default=210)
+    srv_profile = models.IntegerField(default=210)
+    line_profile = models.IntegerField(default=3)
+    gem_port = models.IntegerField(default=21)
+    vlan = models.IntegerField(default=3100)
+    provider = models.TextField(default="INTER")

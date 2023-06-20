@@ -1,7 +1,9 @@
 from django.contrib.auth.hashers import make_password
-from db_api.models import User, Clients
+from db_api.models import User, Clients, Plans
 
 lookup_types = ["S", "C", "D"]
+
+port_lookup_types = ["DT", "CA", "VT", "VP"]
 
 
 def get_user_by_email(email):
@@ -37,6 +39,7 @@ def get_client(lookup_type, lookup_value):
         returned_client = {
             field: getattr(client, field)
             for field in [
+                "contract",
                 "frame",
                 "slot",
                 "port",
@@ -46,26 +49,44 @@ def get_client(lookup_type, lookup_value):
                 "fspi",
                 "name_1",
                 "name_2",
-                "contract",
                 "status",
                 "state",
                 "sn",
                 "device",
-                "plan_idx",
                 "plan_name",
-                "provider",
-                "line_profile",
-                "srv_profile",
-                "gem_port",
                 "spid",
             ]
         }
+        returned_client["srv_profile"] = returned_client["plan_name"].srv_profile
+        returned_client["line_profile"] = returned_client["plan_name"].line_profile
+        returned_client["plan_idx"] = returned_client["plan_name"].plan_idx
+        returned_client["vlan"] = returned_client["plan_name"].vlan
+        returned_client["plan_name"] = returned_client["plan_name"].plan_name
         return {
             "client": returned_client,
             "message": "success",
         }
     except Clients.DoesNotExist:
         return {"client": None, "message": "Client does not exist!"}
+
+
+def get_clients(lookup_type, lookup_value):
+    if lookup_type not in port_lookup_types:
+        return {"message": "bad type", "clients": None}
+
+    if lookup_type == "DT":
+        clients = Clients.objects.filter(state="deactivated").values()
+    if lookup_type == "CA":
+        clients = Clients.objects.all().values()
+    if lookup_type == "VT":
+        clients = Clients.objects.all().values()
+    if lookup_type == "VP":
+        FRAME = lookup_value.split("/")[0]
+        SLOT = lookup_value.split("/")[1]
+        PORT = lookup_value.split("/")[2]
+        clients = Clients.objects.filter(fsp=f"{FRAME}/{SLOT}/{PORT}").values()
+
+    return {"message": "success", "client": list(clients)}
 
 
 def add_user(email, password, userType):
@@ -112,6 +133,7 @@ def delete_client(lookup_type, lookup_value):
         returned_client = {
             field: getattr(client, field)
             for field in [
+                "contract",
                 "frame",
                 "slot",
                 "port",
@@ -121,17 +143,11 @@ def delete_client(lookup_type, lookup_value):
                 "fspi",
                 "name_1",
                 "name_2",
-                "contract",
                 "status",
                 "state",
                 "sn",
                 "device",
-                "plan_idx",
                 "plan_name",
-                "provider",
-                "line_profile",
-                "srv_profile",
-                "gem_port",
                 "spid",
             ]
         }
@@ -191,6 +207,7 @@ def modify_client(lookup_type, lookup_value, change_field, new_values):
         returned_client = {
             field: getattr(client, field)
             for field in [
+                "contract",
                 "frame",
                 "slot",
                 "port",
@@ -200,17 +217,11 @@ def modify_client(lookup_type, lookup_value, change_field, new_values):
                 "fspi",
                 "name_1",
                 "name_2",
-                "contract",
                 "status",
                 "state",
                 "sn",
                 "device",
-                "plan_idx",
                 "plan_name",
-                "provider",
-                "line_profile",
-                "srv_profile",
-                "gem_port",
                 "spid",
             ]
         }
@@ -222,6 +233,8 @@ def modify_client(lookup_type, lookup_value, change_field, new_values):
 
 def populate(client_list):
     for client in client_list:
+        print(client)
+        client["plan_name"] = Plans.objects.get(plan_name=client["plan_name"])
         client["name_1"] = client["name"].split(" ")[0]
         client["name_2"] = client["name"].split(" ")[1]
         client["contract"] = client["name"].split(" ")[2].zfill(10)
