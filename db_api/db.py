@@ -6,23 +6,57 @@ lookup_types = ["S", "C", "D"]
 port_lookup_types = ["DT", "CA", "VT", "VP"]
 
 
+def client_to_dict(client):
+    result = {
+        field: getattr(client, field)
+        for field in [
+            "contract",
+            "frame",
+            "slot",
+            "port",
+            "onu_id",
+            "olt",
+            "fsp",
+            "fspi",
+            "name_1",
+            "name_2",
+            "status",
+            "state",
+            "sn",
+            "device",
+            "plan_name",
+            "spid",
+        ]
+    }
+    return result
+
+
+def user_to_dict(user):
+    result = {
+        field: getattr(user, field)
+        for field in [
+            "id",
+            "email",
+            "password",
+            "user_type",
+        ]
+    }
+    return result
+
+
 def get_user_by_email(email):
     try:
         user = User.objects.get(email=email)
-        return {
-            "id": user.id,
-            "email": user.email,
-            "password": user.password,
-            "user_type": user.user_type,
-            "message": "success",
-        }
+        returned_user = user_to_dict(user)
+        returned_user["message"] = "success"
+        return returned_user
     except User.DoesNotExist:
         return {"id": None, "email": None, "message": "An Error occurred!"}
 
 
 def get_client(lookup_type, lookup_value):
     if lookup_type not in lookup_types:
-        return {"message": "bad type", "client": None}
+        return {"message": "bad type", "data": None}
 
     try:
         if lookup_type == "S":
@@ -30,44 +64,20 @@ def get_client(lookup_type, lookup_value):
         if lookup_type == "C":
             client = Clients.objects.get(contract=lookup_value)
         if lookup_type == "D":
-            FRAME = lookup_value.split("/")[0]
-            SLOT = lookup_value.split("/")[1]
-            PORT = lookup_value.split("/")[2]
-            ONU_ID = lookup_value.split("/")[3]
-            client = Clients.objects.filter(fspi=f"{FRAME}/{SLOT}/{PORT}/{ONU_ID}")
+            client = Clients.objects.get(fspi=lookup_value)
 
-        returned_client = {
-            field: getattr(client, field)
-            for field in [
-                "contract",
-                "frame",
-                "slot",
-                "port",
-                "onu_id",
-                "olt",
-                "fsp",
-                "fspi",
-                "name_1",
-                "name_2",
-                "status",
-                "state",
-                "sn",
-                "device",
-                "plan_name",
-                "spid",
-            ]
-        }
+        returned_client = client_to_dict(client)
         returned_client["srv_profile"] = returned_client["plan_name"].srv_profile
         returned_client["line_profile"] = returned_client["plan_name"].line_profile
         returned_client["plan_idx"] = returned_client["plan_name"].plan_idx
         returned_client["vlan"] = returned_client["plan_name"].vlan
         returned_client["plan_name"] = returned_client["plan_name"].plan_name
         return {
-            "client": returned_client,
+            "data": returned_client,
             "message": "success",
         }
     except Clients.DoesNotExist:
-        return {"client": None, "message": "Client does not exist!"}
+        return {"data": None, "message": "Client does not exist!"}
 
 
 def get_clients(lookup_type, lookup_value):
@@ -75,23 +85,51 @@ def get_clients(lookup_type, lookup_value):
         return {"message": "bad type", "clients": None}
 
     if lookup_type == "DT":
-        clients = Clients.objects.filter(state="deactivated").values()
+        clients = (
+            Clients.objects.filter(state="deactivated")
+            .order_by("frame", "slot", "port", "onu_id")
+            .values()
+        )
     if lookup_type == "CA":
-        clients = Clients.objects.all().values()
+        clients = (
+            Clients.objects.all().order_by("frame", "slot", "port", "onu_id").values()
+        )
     if lookup_type == "VT":
-        clients = Clients.objects.all().values()
+        clients = (
+            Clients.objects.all().order_by("frame", "slot", "port", "onu_id").values()
+        )
     if lookup_type == "VP":
-        FRAME = lookup_value.split("/")[0]
-        SLOT = lookup_value.split("/")[1]
-        PORT = lookup_value.split("/")[2]
-        clients = Clients.objects.filter(fsp=f"{FRAME}/{SLOT}/{PORT}").values()
+        clients = Clients.objects.filter(fsp=lookup_value).order_by("onu_id").values()
 
-    return {"message": "success", "client": list(clients)}
+    return {"message": "success", "data": list(clients)}
 
 
-def add_user(email, password, userType):
+def get_plans():
+    plans = Plans.objects.all().values()
+    # print(plans)
+    return {"message": "success", "data": list(plans)}
+
+
+def add_plan(plan_data):
+    plan = Plans(**plan_data)
+    plan.save()
+    return {
+        "plan": plan_data,
+        "message": "Plan added successfully!",
+    }
+
+
+def update_plan():
+    return
+
+
+def delete_plan():
+    return
+
+
+def add_user(email, password, user_type):
     hashed_password = make_password(password)
-    user = User(email=email, password=hashed_password, userType=userType)
+    user = User(email=email, password=hashed_password, user_type=user_type)
     user.save()
     user = get_user_by_email(email)
     if user["message"] == "success":
@@ -104,20 +142,21 @@ def add_user(email, password, userType):
 
 
 def add_client(data):
+    data["plan_name"] = Plans.objects.get(plan_name=data["plan_name"])
     client = Clients(**data)
     client.save()
-    client = get_client("N", data["contract"])
+    client = get_client("C", data["contract"])
     if client["message"] == "success":
         return {
-            "client": client,
+            "data": client,
             "message": "User added successfully!",
         }
-    return {"client": None, "message": "An Error occurred!"}
+    return {"data": None, "message": "An Error occurred!"}
 
 
 def delete_client(lookup_type, lookup_value):
     if lookup_type not in lookup_types:
-        return {"message": "bad type", "client": None}
+        return {"message": "bad type", "data": None}
 
     try:
         if lookup_type == "S":
@@ -125,36 +164,12 @@ def delete_client(lookup_type, lookup_value):
         if lookup_type == "C":
             client = Clients.objects.get(contract=lookup_value)
         if lookup_type == "D":
-            FRAME = lookup_value.split("/")[0]
-            SLOT = lookup_value.split("/")[1]
-            PORT = lookup_value.split("/")[2]
-            ONU_ID = lookup_value.split("/")[3]
-            client = Clients.objects.filter(fspi=f"{FRAME}/{SLOT}/{PORT}/{ONU_ID}")
-        returned_client = {
-            field: getattr(client, field)
-            for field in [
-                "contract",
-                "frame",
-                "slot",
-                "port",
-                "onu_id",
-                "olt",
-                "fsp",
-                "fspi",
-                "name_1",
-                "name_2",
-                "status",
-                "state",
-                "sn",
-                "device",
-                "plan_name",
-                "spid",
-            ]
-        }
+            client = Clients.objects.get(fspi=lookup_value)
+        returned_client = client_to_dict(client)
         client.delete()
-        return {"message": "Client deleted successfully!", "client": returned_client}
+        return {"message": "Client deleted successfully!", "data": returned_client}
     except Clients.DoesNotExist:
-        return {"message": "Client does not exist.", "client": None}
+        return {"message": "Client does not exist.", "data": None}
 
 
 def modify_client(lookup_type, lookup_value, change_field, new_values):
@@ -166,7 +181,7 @@ def modify_client(lookup_type, lookup_value, change_field, new_values):
         "OX",
     ]
     if change_field not in fields or lookup_type not in lookup_types:
-        return {"message": "bad type", "client": None}
+        return {"message": "bad type", "data": None}
 
     contract = None
     client = None
@@ -179,11 +194,7 @@ def modify_client(lookup_type, lookup_value, change_field, new_values):
             client = Clients.objects.get(contract=lookup_value)
             contract = client.contract
         if lookup_type == "D":
-            FRAME = lookup_value.split("/")[0]
-            SLOT = lookup_value.split("/")[1]
-            PORT = lookup_value.split("/")[2]
-            ONU_ID = lookup_value.split("/")[3]
-            client = Clients.objects.filter(fspi=f"{FRAME}/{SLOT}/{PORT}/{ONU_ID}")
+            client = Clients.objects.get(fspi=lookup_value)
             contract = client.contract
 
         if change_field == "CT":
@@ -203,32 +214,11 @@ def modify_client(lookup_type, lookup_value, change_field, new_values):
             client.state = new_values["state"]
 
         client.save()
-        client = Clients.objects.get(contract=contract)
-        returned_client = {
-            field: getattr(client, field)
-            for field in [
-                "contract",
-                "frame",
-                "slot",
-                "port",
-                "onu_id",
-                "olt",
-                "fsp",
-                "fspi",
-                "name_1",
-                "name_2",
-                "status",
-                "state",
-                "sn",
-                "device",
-                "plan_name",
-                "spid",
-            ]
-        }
-        return {"message": "Client updated successfully!", "client": returned_client}
+        client = Clients.objects.filter(contract=contract).values()[0]
+        return {"message": "Client updated successfully!", "data": client}
 
     except Clients.DoesNotExist:
-        return {"message": "Client does not exist.", "client": None}
+        return {"message": "Client does not exist.", "data": None}
 
 
 def populate(client_list):

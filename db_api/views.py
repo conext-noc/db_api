@@ -13,6 +13,7 @@ from db_api.db import (
     delete_client,
     modify_client,
     populate,
+    get_plans,
 )
 from db_api.jwt_utils import generate_token
 from db_api.ms_health_status import get_health_status
@@ -57,7 +58,7 @@ class AddUser(generics.GenericAPIView):
         data = request.data
         if data["API_KEY"] != os.environ["API_KEY"]:
             return HttpResponse("Unauthorized", status=401)
-        res = add_user(data["email"], data["password"], data["userType"])
+        res = add_user(data["email"], data["password"], data["user_type"])
         if res["id"] is None:
             return Response(res, status=500)
         return Response(res, status=200)
@@ -80,7 +81,7 @@ class GetClient(generics.GenericAPIView):
         lookup_type = data["lookup_type"]
         lookup_value = data["lookup_value"]
         res = get_client(lookup_type, lookup_value)
-        if res["client"] is None:
+        if res["data"] is None:
             return Response(res, status=500)
         return Response(res, status=200)
 
@@ -93,7 +94,7 @@ class GetClients(generics.GenericAPIView):
         lookup_type = data["lookup_type"]
         lookup_value = data["lookup_value"]
         res = get_clients(lookup_type, lookup_value)
-        if res["client"] is None:
+        if res["data"] is None:
             return Response(res, status=500)
         return Response(res, status=200)
 
@@ -103,7 +104,7 @@ class AddClient(generics.GenericAPIView):
         data = request.data
         if data["API_KEY"] != os.environ["API_KEY"]:
             return HttpResponse("Unauthorized", status=401)
-        client = data["client"]
+        client = data["data"]
         full_name = client["name"].strip()
         del client["pwr"]
         del client["name"]
@@ -111,7 +112,7 @@ class AddClient(generics.GenericAPIView):
         client["name_2"] = full_name.strip().split(" ")[1]
         client["contract"] = full_name.strip().split(" ")[2].zfill(10)
         res = add_client(client)
-        if res["client"] is None:
+        if res["data"] is None:
             return Response(res, status=500)
         return Response(res, status=200)
 
@@ -125,7 +126,7 @@ class RemoveClient(generics.GenericAPIView):
         lookup_type = data["lookup_type"]
         lookup_value = data["lookup_value"]
         res = delete_client(lookup_type, lookup_value)
-        if res["client"] is None:
+        if res["data"] is None:
             return Response(res, status=500)
         return Response(res, status=200)
 
@@ -140,7 +141,7 @@ class UpdateClient(generics.GenericAPIView):
         new_values = data["new_values"]
         change_field = data["change_field"]
         res = modify_client(lookup_type, lookup_value, change_field, new_values)
-        if res["client"] is None:
+        if res["data"] is None:
             return Response(res, status=500)
         return Response(res, status=200)
 
@@ -154,4 +155,12 @@ class PopulateDB(generics.GenericAPIView):
         if request.data["API_KEY"] != os.environ["API_KEY"]:
             return HttpResponse("Unauthorized", status=401)
         res = populate(data["client_list"])
+        return Response(res, status=200)
+
+
+class GetPlans(generics.GenericAPIView):
+    def post(self, request):
+        if request.data["API_KEY"] != os.environ["API_KEY"]:
+            return HttpResponse("Unauthorized", status=401)
+        res = get_plans()
         return Response(res, status=200)
