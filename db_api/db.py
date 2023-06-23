@@ -51,12 +51,17 @@ def get_user_by_email(email):
         returned_user["message"] = "success"
         return returned_user
     except User.DoesNotExist:
-        return {"id": None, "email": None, "message": "An Error occurred!"}
+        return {
+            "id": None,
+            "email": None,
+            "message": "An Error occurred!",
+            "error": True,
+        }
 
 
 def get_client(lookup_type, lookup_value):
     if lookup_type not in lookup_types:
-        return {"message": "bad type", "data": None}
+        return {"message": "bad type", "data": None, "error": True}
 
     try:
         if lookup_type == "S":
@@ -72,17 +77,14 @@ def get_client(lookup_type, lookup_value):
         returned_client["plan_idx"] = returned_client["plan_name"].plan_idx
         returned_client["vlan"] = returned_client["plan_name"].vlan
         returned_client["plan_name"] = returned_client["plan_name"].plan_name
-        return {
-            "data": returned_client,
-            "message": "success",
-        }
+        return {"data": returned_client, "message": "success", "error": False}
     except Clients.DoesNotExist:
-        return {"data": None, "message": "Client does not exist!"}
+        return {"data": None, "message": "Client does not exist!", "error": True}
 
 
 def get_clients(lookup_type, lookup_value):
     if lookup_type not in port_lookup_types:
-        return {"message": "bad type", "clients": None}
+        return {"message": "bad type", "clients": None, "error": True}
 
     if lookup_type == "DT":
         clients = (
@@ -101,7 +103,7 @@ def get_clients(lookup_type, lookup_value):
     if lookup_type == "VP":
         clients = Clients.objects.filter(fsp=lookup_value).order_by("onu_id").values()
 
-    return {"message": "success", "data": list(clients)}
+    return {"message": "success", "data": list(clients), "error": False}
 
 
 def get_plans():
@@ -137,8 +139,9 @@ def add_user(email, password, user_type):
             "id": user["id"],
             "email": user["email"],
             "message": "User added successfully!",
+            "error": False,
         }
-    return {"id": None, "email": None, "message": "An Error occurred!"}
+    return {"id": None, "email": None, "message": "An Error occurred!", "error": True}
 
 
 def add_client(data):
@@ -148,16 +151,16 @@ def add_client(data):
     client = get_client("C", data["contract"])
     if client["message"] == "success":
         return {
-            "data": client,
+            "data": client["data"],
             "message": "User added successfully!",
+            "error": False,
         }
-    return {"data": None, "message": "An Error occurred!"}
+    return {"data": None, "message": "An Error occurred!", "error": True}
 
 
 def delete_client(lookup_type, lookup_value):
     if lookup_type not in lookup_types:
-        return {"message": "bad type", "data": None}
-
+        return {"message": "bad type", "data": None, "error": True}
     try:
         if lookup_type == "S":
             client = Clients.objects.get(sn=lookup_value)
@@ -165,11 +168,21 @@ def delete_client(lookup_type, lookup_value):
             client = Clients.objects.get(contract=lookup_value)
         if lookup_type == "D":
             client = Clients.objects.get(fspi=lookup_value)
+
         returned_client = client_to_dict(client)
+        returned_client["srv_profile"] = returned_client["plan_name"].srv_profile
+        returned_client["line_profile"] = returned_client["plan_name"].line_profile
+        returned_client["plan_idx"] = returned_client["plan_name"].plan_idx
+        returned_client["vlan"] = returned_client["plan_name"].vlan
+        returned_client["plan_name"] = returned_client["plan_name"].plan_name
         client.delete()
-        return {"message": "Client deleted successfully!", "data": returned_client}
+        return {
+            "message": "Client deleted successfully!",
+            "data": returned_client,
+            "error": False,
+        }
     except Clients.DoesNotExist:
-        return {"message": "Client does not exist.", "data": None}
+        return {"message": "Client does not exist.", "data": None, "error": True}
 
 
 def modify_client(lookup_type, lookup_value, change_field, new_values):
@@ -181,7 +194,7 @@ def modify_client(lookup_type, lookup_value, change_field, new_values):
         "OX",
     ]
     if change_field not in fields or lookup_type not in lookup_types:
-        return {"message": "bad type", "data": None}
+        return {"message": "bad type", "data": None, "error": True}
 
     contract = None
     client = None
@@ -207,18 +220,22 @@ def modify_client(lookup_type, lookup_value, change_field, new_values):
             client.sn = new_values["sn"]
 
         elif change_field == "CP":
-            client.plan = new_values["plan"][:-2]
-            client.vlan = new_values["provider"]
+            new_plan = Plans.objects.get(plan_name=new_values["plan_name"])
+            client.plan_name = new_plan
 
         elif change_field == "OX":
             client.state = new_values["state"]
 
         client.save()
         client = Clients.objects.filter(contract=contract).values()[0]
-        return {"message": "Client updated successfully!", "data": client}
+        return {
+            "message": "Client updated successfully!",
+            "data": client,
+            "error": False,
+        }
 
     except Clients.DoesNotExist:
-        return {"message": "Client does not exist.", "data": None}
+        return {"message": "Client does not exist.", "data": None, "error": True}
 
 
 def populate(client_list):

@@ -105,12 +105,6 @@ class AddClient(generics.GenericAPIView):
         if data["API_KEY"] != os.environ["API_KEY"]:
             return HttpResponse("Unauthorized", status=401)
         client = data["data"]
-        full_name = client["name"].strip()
-        del client["pwr"]
-        del client["name"]
-        client["name_1"] = full_name.strip().split(" ")[0]
-        client["name_2"] = full_name.strip().split(" ")[1]
-        client["contract"] = full_name.strip().split(" ")[2].zfill(10)
         res = add_client(client)
         if res["data"] is None:
             return Response(res, status=500)
@@ -120,7 +114,6 @@ class AddClient(generics.GenericAPIView):
 class RemoveClient(generics.GenericAPIView):
     def post(self, request):
         data = request.data
-        print(data)
         if data["API_KEY"] != os.environ["API_KEY"]:
             return HttpResponse("Unauthorized", status=401)
         lookup_type = data["lookup_type"]
@@ -144,9 +137,6 @@ class UpdateClient(generics.GenericAPIView):
         if res["data"] is None:
             return Response(res, status=500)
         return Response(res, status=200)
-
-    # once finished this method finish up the mod ms
-    # then update th oltOperations to work with this db
 
 
 class PopulateDB(generics.GenericAPIView):
