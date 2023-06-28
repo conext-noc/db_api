@@ -81,8 +81,6 @@ class GetClient(generics.GenericAPIView):
         lookup_type = data["lookup_type"]
         lookup_value = data["lookup_value"]
         res = get_client(lookup_type, lookup_value)
-        if res["data"] is None:
-            return Response(res, status=500)
         return Response(res, status=200)
 
 
@@ -94,8 +92,6 @@ class GetClients(generics.GenericAPIView):
         lookup_type = data["lookup_type"]
         lookup_value = data["lookup_value"]
         res = get_clients(lookup_type, lookup_value)
-        if res["data"] is None:
-            return Response(res, status=500)
         return Response(res, status=200)
 
 
@@ -106,8 +102,6 @@ class AddClient(generics.GenericAPIView):
             return HttpResponse("Unauthorized", status=401)
         client = data["data"]
         res = add_client(client)
-        if res["data"] is None:
-            return Response(res, status=500)
         return Response(res, status=200)
 
 
@@ -119,8 +113,6 @@ class RemoveClient(generics.GenericAPIView):
         lookup_type = data["lookup_type"]
         lookup_value = data["lookup_value"]
         res = delete_client(lookup_type, lookup_value)
-        if res["data"] is None:
-            return Response(res, status=500)
         return Response(res, status=200)
 
 
@@ -134,8 +126,6 @@ class UpdateClient(generics.GenericAPIView):
         new_values = data["new_values"]
         change_field = data["change_field"]
         res = modify_client(lookup_type, lookup_value, change_field, new_values)
-        if res["data"] is None:
-            return Response(res, status=500)
         return Response(res, status=200)
 
 
