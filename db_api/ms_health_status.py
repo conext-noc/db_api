@@ -17,7 +17,7 @@ def get_health_status():
         )
 
         # Create an AWS Elastic Beanstalk client
-        eb_client = session.client("elasticbeanstalk")
+        eb_client = session.client("elasticbeanstalk", region_name="us-west-2")
 
         # Get information about the environment
         for environment in envs:
