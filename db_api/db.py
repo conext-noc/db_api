@@ -213,7 +213,6 @@ def modify_client(lookup_type, lookup_value, change_field, new_values):
         if change_field == "CT":
             client.name_1 = new_values["name_1"]
             client.name_2 = new_values["name_2"]
-            client.contract = new_values["contract"]
             contract = new_values["contract"]
 
         elif change_field == "CO":
@@ -242,10 +241,6 @@ def populate(client_list):
     for client in client_list:
         print(client)
         client["plan_name"] = Plans.objects.get(plan_name=client["plan_name"])
-        client["name_1"] = client["name"].split(" ")[0]
-        client["name_2"] = client["name"].split(" ")[1]
-        client["contract"] = client["name"].split(" ")[2].zfill(10)
-        del client["name"]
         client_db = Clients(**client)
         client_db.save()
     return {"message": "Success!"}
