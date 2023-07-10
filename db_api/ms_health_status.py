@@ -8,6 +8,7 @@ load_dotenv()
 
 def get_health_status():
     data = {"Ops-env": {}, "Ins-env": {}, "Sch-env": {}, "Mod-env": {}, "Mon-env": {}}
+    res = []
     envs = list(data.keys())
     try:
         # Create a session using your AWS access key and secret access key
@@ -34,8 +35,10 @@ def get_health_status():
                 data[environment]["application"] = response["ApplicationName"]
                 data[environment]["version"] = response["VersionLabel"]
                 data[environment]["status"] = response["Status"]
+        for environments in data.items():
+            res.append(environments[1])
 
-        return {"error": False, "message": "success", "data": data}
+        return {"error": False, "message": "success", "data": res}
 
     except NoCredentialsError:
         return {

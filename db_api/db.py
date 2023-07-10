@@ -213,8 +213,8 @@ def modify_client(lookup_type, lookup_value, change_field, new_values):
         if change_field == "CT":
             client.name_1 = new_values["name_1"]
             client.name_2 = new_values["name_2"]
+            client.contract = new_values["contract"]
             contract = new_values["contract"]
-
         elif change_field == "CO":
             client.sn = new_values["sn"]
 
@@ -226,10 +226,20 @@ def modify_client(lookup_type, lookup_value, change_field, new_values):
             client.state = new_values["state"]
 
         client.save()
-        client = Clients.objects.filter(contract=contract).values()[0]
+        client.refresh_from_db()
+        print(contract)
+        returned_client = Clients.objects.get(contract=contract)
+        print(returned_client)
+        returned_client = client_to_dict(client)
+        returned_client["srv_profile"] = returned_client["plan_name"].srv_profile
+        returned_client["line_profile"] = returned_client["plan_name"].line_profile
+        returned_client["plan_idx"] = returned_client["plan_name"].plan_idx
+        returned_client["vlan"] = returned_client["plan_name"].vlan
+        returned_client["plan_name"] = returned_client["plan_name"].plan_name
+        # client = Clients.objects.filter(contract=contract).values()[0]
         return {
             "message": "Client updated successfully!",
-            "data": client,
+            "data": returned_client,
             "error": False,
         }
 
