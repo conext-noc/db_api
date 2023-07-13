@@ -186,6 +186,7 @@ def delete_client(lookup_type, lookup_value):
 
 
 def modify_client(lookup_type, lookup_value, change_field, new_values):
+    old_contract = None
     fields = [
         "CO",
         "CT",
@@ -213,8 +214,9 @@ def modify_client(lookup_type, lookup_value, change_field, new_values):
         if change_field == "CT":
             client.name_1 = new_values["name_1"]
             client.name_2 = new_values["name_2"]
-            client.contract = new_values["contract"]
+            old_contract = client.contract
             contract = new_values["contract"]
+            client.contract = new_values["contract"]
         elif change_field == "CO":
             client.sn = new_values["sn"]
 
@@ -227,9 +229,11 @@ def modify_client(lookup_type, lookup_value, change_field, new_values):
 
         client.save()
         client.refresh_from_db()
-        print(contract)
+
+        if change_field == "CT":
+            old_client = Clients.objects.get(contract=old_contract)
+            old_client.delete()
         returned_client = Clients.objects.get(contract=contract)
-        print(returned_client)
         returned_client = client_to_dict(client)
         returned_client["srv_profile"] = returned_client["plan_name"].srv_profile
         returned_client["line_profile"] = returned_client["plan_name"].line_profile
