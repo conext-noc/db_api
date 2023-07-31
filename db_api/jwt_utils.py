@@ -8,7 +8,6 @@ load_dotenv()
 
 def generate_token(email):
     secret_key = os.environ["API_KEY"]
-    print(secret_key)
     expiration_time = datetime.utcnow() + timedelta(hours=10)
 
     payload = {"email": email, "exp": expiration_time}

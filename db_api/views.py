@@ -4,16 +4,16 @@ from rest_framework import generics
 from django.http import HttpResponse
 from django.contrib.auth.hashers import check_password
 from dotenv import load_dotenv
-from db_api.db import (
-    get_user_by_email,
-    add_user,
-    add_client,
+from db_api.db_alarms import get_alarms, add_alarms, empty_alarms
+from db_api.db_plans import get_plans
+from db_api.db_users import add_user, get_user_by_email
+from db_api.db_clients import (
     get_client,
     get_clients,
     delete_client,
     modify_client,
+    add_client,
     populate,
-    get_plans,
 )
 from db_api.jwt_utils import generate_token
 from db_api.ms_health_status import get_health_status
@@ -26,6 +26,7 @@ class DbApi(generics.GenericAPIView):
         return HttpResponse("ms_running", status=200)
 
 
+# --------------------------------------- USERS ---------------------------------------
 class SignIn(generics.GenericAPIView):
     def post(self, request):
         data = request.data
@@ -64,6 +65,7 @@ class AddUser(generics.GenericAPIView):
         return Response(res, status=200)
 
 
+# --------------------------------------- MS HEALTH CHECK ---------------------------------------
 class MsHealthCheck(generics.GenericAPIView):
     def post(self, req):
         data = req.data
@@ -73,6 +75,7 @@ class MsHealthCheck(generics.GenericAPIView):
         return Response(res, status=200)
 
 
+# --------------------------------------- CLIENTS ---------------------------------------
 class GetClient(generics.GenericAPIView):
     def post(self, request):
         data = request.data
@@ -138,9 +141,35 @@ class PopulateDB(generics.GenericAPIView):
         return Response(res, status=200)
 
 
+# --------------------------------------- PLANS ---------------------------------------
 class GetPlans(generics.GenericAPIView):
     def post(self, request):
         if request.data["API_KEY"] != os.environ["API_KEY"]:
             return HttpResponse("Unauthorized", status=401)
         res = get_plans()
+        return Response(res, status=200)
+
+
+# --------------------------------------- ALARMS ---------------------------------------
+class GetAlarms(generics.GenericAPIView):
+    def post(self, req):
+        if req.data["API_KEY"] != os.environ["API_KEY"]:
+            return HttpResponse("Unauthorized", status=401)
+        res = get_alarms()
+        return Response(res, status=200)
+
+
+class AddAlarms(generics.GenericAPIView):
+    def post(self, req):
+        if req.data["API_KEY"] != os.environ["API_KEY"]:
+            return HttpResponse("Unauthorized", status=401)
+        res = add_alarms(req.data)
+        return Response(res, status=200)
+
+
+class EmptyAlarms(generics.GenericAPIView):
+    def post(self, req):
+        if req.data["API_KEY"] != os.environ["API_KEY"]:
+            return HttpResponse("Unauthorized", status=401)
+        res = empty_alarms()
         return Response(res, status=200)

@@ -25,7 +25,7 @@ class Clients(models.Model):
     name_2 = models.TextField()
     status = models.TextField(default="online")
     state = models.TextField(default="active")
-    sn = models.TextField(default="48575443--------")
+    sn = models.TextField(default="48575443--------", unique=True)
     device = models.TextField(default="EG145V5")
     plan_name = models.ForeignKey(
         "Plans", on_delete=models.CASCADE, to_field="plan_name", db_column="plan_name"
@@ -41,3 +41,16 @@ class Plans(models.Model):
     gem_port = models.IntegerField(default=21)
     vlan = models.IntegerField(default=3100)
     provider = models.TextField(default="INTER")
+
+
+# create ports model
+
+
+class Alarms(models.Model):
+    alarm_id = models.AutoField(primary_key=True, unique=True)
+    contract = models.ForeignKey(
+        "Clients", on_delete=models.CASCADE, to_field="contract", db_column="contract"
+    )
+    last_down_time = models.TextField(default="-")
+    last_down_date = models.TextField(default="-")
+    last_down_cause = models.TextField(default="-")

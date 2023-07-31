@@ -1,11 +1,11 @@
-from django.contrib.auth.hashers import make_password
-from db_api.models import User, Clients, Plans
+from db_api.models import Clients, Plans
 
 lookup_types = ["S", "C", "D"]
 
 port_lookup_types = ["DT", "CA", "VT", "VP"]
 
 
+# HANDLER
 def client_to_dict(client):
     result = {
         field: getattr(client, field)
@@ -31,34 +31,22 @@ def client_to_dict(client):
     return result
 
 
-def user_to_dict(user):
-    result = {
-        field: getattr(user, field)
-        for field in [
-            "id",
-            "email",
-            "password",
-            "user_type",
-        ]
-    }
-    return result
-
-
-def get_user_by_email(email):
-    try:
-        user = User.objects.get(email=email)
-        returned_user = user_to_dict(user)
-        returned_user["message"] = "success"
-        return returned_user
-    except User.DoesNotExist:
+# CREATE
+def add_client(data):
+    data["plan_name"] = Plans.objects.get(plan_name=data["plan_name"])
+    client = Clients(**data)
+    client.save()
+    client = get_client("C", data["contract"])
+    if client["message"] == "success":
         return {
-            "id": None,
-            "email": None,
-            "message": "An Error occurred!",
-            "error": True,
+            "data": client["data"],
+            "message": "User added successfully!",
+            "error": False,
         }
+    return {"data": None, "message": "An Error occurred!", "error": True}
 
 
+# READ
 def get_client(lookup_type, lookup_value):
     if lookup_type not in lookup_types:
         return {"message": "bad type", "data": None, "error": True}
@@ -106,85 +94,7 @@ def get_clients(lookup_type, lookup_value):
     return {"message": "success", "data": list(clients), "error": False}
 
 
-def get_plans():
-    plans = Plans.objects.all().values()
-    # print(plans)
-    return {"message": "success", "data": list(plans)}
-
-
-def add_plan(plan_data):
-    plan = Plans(**plan_data)
-    plan.save()
-    return {
-        "plan": plan_data,
-        "message": "Plan added successfully!",
-    }
-
-
-def update_plan():
-    return
-
-
-def delete_plan():
-    return
-
-
-def add_user(email, password, user_type):
-    hashed_password = make_password(password)
-    user = User(email=email, password=hashed_password, user_type=user_type)
-    user.save()
-    user = get_user_by_email(email)
-    if user["message"] == "success":
-        return {
-            "id": user["id"],
-            "email": user["email"],
-            "message": "User added successfully!",
-            "error": False,
-        }
-    return {"id": None, "email": None, "message": "An Error occurred!", "error": True}
-
-
-def add_client(data):
-    data["plan_name"] = Plans.objects.get(plan_name=data["plan_name"])
-    client = Clients(**data)
-    client.save()
-    client = get_client("C", data["contract"])
-    if client["message"] == "success":
-        return {
-            "data": client["data"],
-            "message": "User added successfully!",
-            "error": False,
-        }
-    return {"data": None, "message": "An Error occurred!", "error": True}
-
-
-def delete_client(lookup_type, lookup_value):
-    if lookup_type not in lookup_types:
-        return {"message": "bad type", "data": None, "error": True}
-    try:
-        if lookup_type == "S":
-            client = Clients.objects.get(sn=lookup_value)
-        if lookup_type == "C":
-            client = Clients.objects.get(contract=lookup_value)
-        if lookup_type == "D":
-            client = Clients.objects.get(fspi=lookup_value)
-
-        returned_client = client_to_dict(client)
-        returned_client["srv_profile"] = returned_client["plan_name"].srv_profile
-        returned_client["line_profile"] = returned_client["plan_name"].line_profile
-        returned_client["plan_idx"] = returned_client["plan_name"].plan_idx
-        returned_client["vlan"] = returned_client["plan_name"].vlan
-        returned_client["plan_name"] = returned_client["plan_name"].plan_name
-        client.delete()
-        return {
-            "message": "Client deleted successfully!",
-            "data": returned_client,
-            "error": False,
-        }
-    except Clients.DoesNotExist:
-        return {"message": "Client does not exist.", "data": None, "error": True}
-
-
+# UPDATE
 def modify_client(lookup_type, lookup_value, change_field, new_values):
     old_contract = None
     fields = [
@@ -251,10 +161,39 @@ def modify_client(lookup_type, lookup_value, change_field, new_values):
         return {"message": "Client does not exist.", "data": None, "error": True}
 
 
+# DELETE
+def delete_client(lookup_type, lookup_value):
+    if lookup_type not in lookup_types:
+        return {"message": "bad type", "data": None, "error": True}
+    try:
+        if lookup_type == "S":
+            client = Clients.objects.get(sn=lookup_value)
+        if lookup_type == "C":
+            client = Clients.objects.get(contract=lookup_value)
+        if lookup_type == "D":
+            client = Clients.objects.get(fspi=lookup_value)
+
+        returned_client = client_to_dict(client)
+        returned_client["srv_profile"] = returned_client["plan_name"].srv_profile
+        returned_client["line_profile"] = returned_client["plan_name"].line_profile
+        returned_client["plan_idx"] = returned_client["plan_name"].plan_idx
+        returned_client["vlan"] = returned_client["plan_name"].vlan
+        returned_client["plan_name"] = returned_client["plan_name"].plan_name
+        client.delete()
+        return {
+            "message": "Client deleted successfully!",
+            "data": returned_client,
+            "error": False,
+        }
+    except Clients.DoesNotExist:
+        return {"message": "Client does not exist.", "data": None, "error": True}
+
+
+# POPULATE
 def populate(client_list):
     for client in client_list:
         print(client)
         client["plan_name"] = Plans.objects.get(plan_name=client["plan_name"])
         client_db = Clients(**client)
         client_db.save()
-    return {"message": "Success!"}
+    return {"message": "Success!", "error": False}

@@ -11,19 +11,25 @@ from db_api.views import (
     RemoveClient,
     PopulateDB,
     GetPlans,
+    GetAlarms,
+    AddAlarms,
+    EmptyAlarms,
 )
 
 urlpatterns = [
     path("", DbApi.as_view()),
     path("signin", SignIn.as_view()),
     path("adduser", AddUser.as_view()),
+    path("add-alarms", AddAlarms.as_view()),
     path("add-client", AddClient.as_view()),
     path("get-client", GetClient.as_view()),
     path("get-clients", GetClients.as_view()),
+    path("get-plans", GetPlans.as_view()),
+    path("get-alarms", GetAlarms.as_view()),
     path("update-client", UpdateClient.as_view()),
     path("remove-client", RemoveClient.as_view()),
+    path("empty-alarms", EmptyAlarms.as_view()),
     path("ms-health-check", MsHealthCheck.as_view()),
     path("populate", PopulateDB.as_view()),
-    path("get-plans", GetPlans.as_view()),
     # path("populate", AddAllClients.as_view()),
 ]
