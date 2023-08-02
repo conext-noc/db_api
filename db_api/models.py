@@ -43,7 +43,14 @@ class Plans(models.Model):
     provider = models.TextField(default="INTER")
 
 
-# create ports model
+class Ports(models.Model):
+    port_id = models.AutoField(primary_key=True, unique=True)
+    frame = models.IntegerField(default=0)
+    slot = models.IntegerField(default=1)
+    port = models.IntegerField(default=0)
+    olt = models.IntegerField(default=1)
+    fspo = models.TextField(default="0/1/0-1", unique=True)
+    is_open = models.BooleanField(default=False)
 
 
 class Alarms(models.Model):
@@ -54,3 +61,9 @@ class Alarms(models.Model):
     last_down_time = models.TextField(default="-")
     last_down_date = models.TextField(default="-")
     last_down_cause = models.TextField(default="-")
+
+
+class OltPasswords(models.Model):
+    cred_id = models.AutoField(primary_key=True, unique=True)
+    user_name = models.TextField(default="-")
+    password = models.TextField(default="-")

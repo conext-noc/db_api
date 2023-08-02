@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from db_api.db_alarms import get_alarms, add_alarms, empty_alarms
 from db_api.db_plans import get_plans
 from db_api.db_users import add_user, get_user_by_email
+from db_api.db_ports import get_ports, add_ports, disable_port, open_port
 from db_api.db_clients import (
     get_client,
     get_clients,
@@ -17,6 +18,7 @@ from db_api.db_clients import (
 )
 from db_api.jwt_utils import generate_token
 from db_api.ms_health_status import get_health_status
+from db_api.db_creds import get_creds
 
 load_dotenv()
 
@@ -172,4 +174,47 @@ class EmptyAlarms(generics.GenericAPIView):
         if req.data["API_KEY"] != os.environ["API_KEY"]:
             return HttpResponse("Unauthorized", status=401)
         res = empty_alarms()
+        return Response(res, status=200)
+
+
+# --------------------------------------- PORTS ---------------------------------------
+class GetPorts(generics.GenericAPIView):
+    def post(self, req):
+        if req.data["API_KEY"] != os.environ["API_KEY"]:
+            return HttpResponse("Unauthorized", status=401)
+        res = get_ports()
+        return Response(res, status=200)
+
+
+class AddPorts(generics.GenericAPIView):
+    def post(self, req):
+        data = req.data
+        if data["API_KEY"] != os.environ["API_KEY"]:
+            return HttpResponse("Unauthorized", status=401)
+        res = add_ports(req["data"])
+        return Response(res, status=200)
+
+
+class DisablePorts(generics.GenericAPIView):
+    def post(self, req):
+        if req.data["API_KEY"] != os.environ["API_KEY"]:
+            return HttpResponse("Unauthorized", status=401)
+        res = disable_port(req.data)
+        return Response(res, status=200)
+
+
+class OpenPorts(generics.GenericAPIView):
+    def post(self, req):
+        if req.data["API_KEY"] != os.environ["API_KEY"]:
+            return HttpResponse("Unauthorized", status=401)
+        res = open_port(req.data)
+        return Response(res, status=200)
+
+
+# --------------------------------------- CREDS ---------------------------------------
+class Creds(generics.GenericAPIView):
+    def post(self, req):
+        if req.data["API_KEY"] != os.environ["API_KEY"]:
+            return HttpResponse("Unauthorized", status=401)
+        res = get_creds()
         return Response(res, status=200)
