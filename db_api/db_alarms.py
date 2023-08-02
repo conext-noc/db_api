@@ -15,7 +15,7 @@ def add_alarms(data):
 # READ
 def get_alarms():
     alarms = Alarms.objects.all().values()
-    return {"message": "Success!", "error": False, "alarms": list(alarms)}
+    return {"message": "Success!", "error": False, "data": list(alarms)}
 
 
 # UPDATE - DELETE

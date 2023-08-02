@@ -14,7 +14,7 @@ def add_ports(data):
 # READ
 def get_ports():
     ports = Ports.objects.all().values()
-    return {"message": "success", "error": False, "ports": list(ports)}
+    return {"message": "success", "error": False, "data": list(ports)}
 
 
 # UPDATE

@@ -12,7 +12,7 @@ from db_api.models import OltPasswords
 # READ
 def get_creds():
     creds = OltPasswords.objects.all().values()
-    return {"message": "Success!", "error": False, "creds": list(creds)}
+    return {"message": "Success!", "error": False, "data": list(creds)}
 
 
 # UPDATE - DELETE
