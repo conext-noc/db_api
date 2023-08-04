@@ -137,12 +137,10 @@ def modify_client(lookup_type, lookup_value, change_field, new_values):
         elif change_field == "OX":
             client.state = new_values["state"]
 
-        client.save()
-        client.refresh_from_db()
-
         if change_field == "CT":
             old_client = Clients.objects.get(contract=old_contract)
             old_client.delete()
+        client.save()
         returned_client = Clients.objects.get(contract=contract)
         returned_client = client_to_dict(client)
         returned_client["srv_profile"] = returned_client["plan_name"].srv_profile
