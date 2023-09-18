@@ -52,6 +52,8 @@ CORS_ALLOWED_ORIGINS = [
     "dashboard.us-west-2.elasticbeanstalk.com",
 ]
 
+CORS_ALLOW_ALL_ORIGINS = True
+
 CORS_ALLOW_CREDENTIALS = True
 
 
