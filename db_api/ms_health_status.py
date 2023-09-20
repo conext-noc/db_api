@@ -18,7 +18,7 @@ def get_health_status():
         eb_client = session.client("elasticbeanstalk", region_name="us-west-2")
 
         envs = eb_client.describe_environments()["Environments"]
-
+        
         for env in envs:
             res.append(
                 {
