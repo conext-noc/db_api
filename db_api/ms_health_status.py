@@ -28,7 +28,7 @@ def get_health_status():
                     "url-eb": env["CNAME"],
                     "status": env["Status"],
                     "health": env["Health"],
-                    "health-status": env["HealthStatus"],
+                    "health-status": env.get("HealthStatus") or "",
                 }
             )
 
