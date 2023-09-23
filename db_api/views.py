@@ -6,7 +6,7 @@ from django.contrib.auth.hashers import check_password
 from dotenv import load_dotenv
 from db_api.db_alarms import get_alarms, add_alarms, empty_alarms
 from db_api.db_plans import get_plans
-from db_api.db_users import add_user, get_user_by_email
+from db_api.db_users import add_user, get_user_by_email, update_user
 from db_api.db_ports import get_ports, add_ports, disable_port, open_port
 from db_api.db_clients import (
     get_client,
@@ -65,7 +65,17 @@ class AddUser(generics.GenericAPIView):
         if res["id"] is None:
             return Response(res, status=500)
         return Response(res, status=200)
-
+    
+    
+class UpdateUser(generics.GenericAPIView):
+    def post(self, request):
+        data = request.data
+        if data["API_KEY"] != os.environ["API_KEY"]:
+            return HttpResponse("Unauthorized", status=401)
+        res = update_user(data)
+        if res["error"]:
+            return Response(res, status=400)
+        return Response(res, status=200)
 
 # --------------------------------------- MS HEALTH CHECK ---------------------------------------
 class MsHealthCheck(generics.GenericAPIView):
