@@ -57,7 +57,10 @@ def get_client(lookup_type, lookup_value):
         if lookup_type == "C":
             client = Clients.objects.get(contract=lookup_value)
         if lookup_type == "D":
-            client = Clients.objects.get(fspi=lookup_value)
+            # fix issue of db duplicates on same/diff olts
+            fspi=lookup_value[:-2]
+            olt=lookup_value[-1:]
+            client = Clients.objects.get(fspi=fspi, olt=olt)
 
         returned_client = client_to_dict(client)
         returned_client["srv_profile"] = returned_client["plan_name"].srv_profile
@@ -89,7 +92,10 @@ def get_clients(lookup_type, lookup_value):
             Clients.objects.all().order_by("frame", "slot", "port", "onu_id").values()
         )
     if lookup_type == "VP":
-        clients = Clients.objects.filter(fsp=lookup_value).order_by("onu_id").values()
+        # fix issue of db duplicates on same/diff olts
+        fsp=lookup_value[:-2]
+        olt=lookup_value[-1:]
+        clients = Clients.objects.filter(fsp=fsp,olt=olt).order_by("onu_id").values()
 
     return {"message": "success", "data": list(clients), "error": False}
 
@@ -118,7 +124,10 @@ def modify_client(lookup_type, lookup_value, change_field, new_values):
             client = Clients.objects.get(contract=lookup_value)
             contract = client.contract
         if lookup_type == "D":
-            client = Clients.objects.get(fspi=lookup_value)
+            # fix issue of db duplicates on same/diff olts
+            fspi=lookup_value[:-2]
+            olt=lookup_value[-1:]
+            client = Clients.objects.get(fspi=fspi, olt=olt)
             contract = client.contract
 
         if change_field == "CT":
@@ -169,7 +178,10 @@ def delete_client(lookup_type, lookup_value):
         if lookup_type == "C":
             client = Clients.objects.get(contract=lookup_value)
         if lookup_type == "D":
-            client = Clients.objects.get(fspi=lookup_value)
+            # fix issue of db duplicates on same/diff olts
+            fspi=lookup_value[:-2]
+            olt=lookup_value[-1:]
+            client = Clients.objects.get(fspi=fspi, olt=olt)
 
         returned_client = client_to_dict(client)
         returned_client["srv_profile"] = returned_client["plan_name"].srv_profile
