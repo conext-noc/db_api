@@ -53,9 +53,13 @@ def get_client(lookup_type, lookup_value):
 
     try:
         if lookup_type == "S":
-            client = Clients.objects.get(sn=lookup_value)
+            serial=lookup_value[:-2]
+            olt=lookup_value[-1:]
+            client = Clients.objects.get(sn=serial,olt=olt)
         if lookup_type == "C":
-            client = Clients.objects.get(contract=lookup_value)
+            contract=lookup_value[:-2]
+            olt=lookup_value[-1:]
+            client = Clients.objects.get(contract=contract,olt=olt)
         if lookup_type == "D":
             # fix issue of db duplicates on same/diff olts
             fspi=lookup_value[:-2]
