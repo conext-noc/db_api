@@ -11,6 +11,14 @@ class User(models.Model):
     def __str__(self):
         return self.email
 
+    def to_object(self):
+        return {
+            "id": self.id,
+            "email": self.email,
+            "passwd": self.password,
+            "user_type": self.user_type,
+        }
+
 
 class Clients(models.Model):
     contract = models.TextField(primary_key=True, unique=True)
@@ -32,6 +40,26 @@ class Clients(models.Model):
     )
     spid = models.IntegerField(default=1)
 
+    def to_object(self):
+        return {
+            "contract": self.contract,
+            "frame": self.frame,
+            "slot": self.slot,
+            "port": self.port,
+            "onu_id": self.onu_id,
+            "olt": self.olt,
+            "fsp": self.fsp,
+            "fspi": self.fspi,
+            "name_1": self.name_1,
+            "name_2": self.name_2,
+            "status": self.status,
+            "state": self.state,
+            "sn": self.sn,
+            "device": self.device,
+            "plan_name": self.plan_name,
+            "spid": self.spid,
+        }
+
 
 class Plans(models.Model):
     plan_name = models.TextField(primary_key=True, unique=True)
@@ -41,6 +69,17 @@ class Plans(models.Model):
     gem_port = models.IntegerField(default=21)
     vlan = models.IntegerField(default=3100)
     provider = models.TextField(default="INTER")
+
+    def to_object(self):
+        return {
+            "plan_name": self.plan_name,
+            "plan_idx": self.plan_idx,
+            "srv_profile": self.srv_profile,
+            "line_profile": self.line_profile,
+            "gem_port": self.gem_port,
+            "vlan": self.vlan,
+            "provider": self.provider,
+        }
 
 
 class Ports(models.Model):
@@ -52,6 +91,17 @@ class Ports(models.Model):
     fspo = models.TextField(default="0/1/0-1", unique=True)
     is_open = models.BooleanField(default=False)
 
+    def to_object(self):
+        return {
+            "port_id": self.port_id,
+            "frame": self.frame,
+            "slot": self.slot,
+            "port": self.port,
+            "olt": self.olt,
+            "fspo": self.fspo,
+            "is_open": self.is_open,
+        }
+
 
 class Alarms(models.Model):
     alarm_id = models.AutoField(primary_key=True, unique=True)
@@ -62,8 +112,24 @@ class Alarms(models.Model):
     last_down_date = models.TextField(default="-")
     last_down_cause = models.TextField(default="-")
 
+    def to_object(self):
+        return {
+            "alarm_id": self.alarm_id,
+            "contract": self.contract.to_object()["contract"],
+            "last_down_time": self.last_down_time,
+            "last_down_date": self.last_down_date,
+            "last_down_cause": self.last_down_cause,
+        }
+
 
 class OltPasswords(models.Model):
     cred_id = models.AutoField(primary_key=True, unique=True)
     user_name = models.TextField(default="-")
     password = models.TextField(default="-")
+
+    def to_object(self):
+        return {
+            "cred_id": self.cred_id,
+            "user_name": self.user_name,
+            "password": self.password,
+        }
