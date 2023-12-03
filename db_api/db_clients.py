@@ -149,15 +149,18 @@ def modify_client(lookup_type, lookup_value, change_field, new_values):
 
     try:
         if lookup_type == "S":
-            client = Clients.objects.get(sn=lookup_value)
+            serial = lookup_value["serial"]
+            olt = lookup_value["olt"]
+            client = Clients.objects.get(sn=serial, olt=olt)
             contract = client.contract
         if lookup_type == "C":
-            client = Clients.objects.get(contract=lookup_value)
+            contract = lookup_value["contract"]
+            olt = lookup_value["olt"]
+            client = Clients.objects.get(contract=contract, olt=olt)
             contract = client.contract
         if lookup_type == "D":
-            # fix issue of db duplicates on same/diff olts
-            fspi = lookup_value[:-2]
-            olt = lookup_value[-1:]
+            fspi = lookup_value["fspi"]
+            olt = lookup_value["olt"]
             client = Clients.objects.get(fspi=fspi, olt=olt)
             contract = client.contract
 
@@ -205,13 +208,17 @@ def delete_client(lookup_type, lookup_value):
         return {"message": "bad type", "data": None, "error": True}
     try:
         if lookup_type == "S":
-            client = Clients.objects.get(sn=lookup_value)
+            serial = lookup_value["serial"]
+            olt = lookup_value["olt"]
+            client = Clients.objects.get(sn=serial, olt=olt)
         if lookup_type == "C":
-            client = Clients.objects.get(contract=lookup_value)
+            contract = lookup_value["contract"]
+            olt = lookup_value["olt"]
+            client = Clients.objects.get(contract=contract, olt=olt)
         if lookup_type == "D":
-            # fix issue of db duplicates on same/diff olts
-            fspi = lookup_value[:-2]
-            olt = lookup_value[-1:]
+            fspi = lookup_value["fspi"]
+            olt = lookup_value["olt"]
+            client = Clients.objects.get(fspi=fspi, olt=olt)
             client = Clients.objects.get(fspi=fspi, olt=olt)
 
         returned_client = client_to_dict(client)
