@@ -19,6 +19,7 @@ from db_api.db_clients import (
 from db_api.jwt_utils import generate_token
 from db_api.ms_health_status import get_health_status
 from db_api.db_creds import get_creds
+from db_api.db_acl_rules import get_rules, add_rules, update_rules_ip
 
 load_dotenv()
 
@@ -227,4 +228,27 @@ class Creds(generics.GenericAPIView):
         if req.data["API_KEY"] != os.environ["API_KEY"]:
             return HttpResponse("Unauthorized", status=401)
         res = get_creds()
+        return Response(res, status=200)
+
+# --------------------------------------- ACLS ----------------------------------------
+
+class GetACLS(generics.GenericAPIView):
+    def post(self, req):
+        if req.data["API_KEY"] != os.environ["API_KEY"]:
+            return HttpResponse("Unauthorized", status=401)
+        res = get_rules()
+        return Response(res, status=200)
+
+class CreateACLS(generics.GenericAPIView):
+    def post(self, req):
+        if req.data["API_KEY"] != os.environ["API_KEY"]:
+            return HttpResponse("Unauthorized", status=401)
+        res = add_rules(req.data['acl_rules'])
+        return Response(res, status=200)
+    
+class UpdateACLS(generics.GenericAPIView):
+    def put(self, req):
+        if req.data["API_KEY"] != os.environ["API_KEY"]:
+            return HttpResponse("Unauthorized", status=401)
+        res = update_rules_ip(req.data['acl_rules'])
         return Response(res, status=200)

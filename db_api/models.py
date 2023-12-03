@@ -67,3 +67,23 @@ class OltPasswords(models.Model):
     cred_id = models.AutoField(primary_key=True, unique=True)
     user_name = models.TextField(default="-")
     password = models.TextField(default="-")
+
+class ACLRules(models.Model):
+    rule_id = models.AutoField(primary_key=True, unique=True)
+    name = models.TextField(default="-")
+    rtr_acl_name = models.TextField(default="-")
+    olt_acl_name = models.TextField(default="-")
+    rtr_rule_id = models.IntegerField(default=1)
+    olt_rule_id = models.IntegerField(default=1)
+    ip_addr = models.TextField(default="-")
+    
+    def to_dict(self):
+        return {
+            "rule_id":self.rule_id,
+            "name":self.name,
+            "rtr_acl_name":self.rtr_acl_name,
+            "olt_acl_name":self.olt_acl_name,
+            "rtr_rule_id":self.rtr_rule_id,
+            "olt_rule_id":self.olt_rule_id,
+            "ip_addr":self.ip_addr,
+        }

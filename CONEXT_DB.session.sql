@@ -1,6 +1,6 @@
 -- SELECT * FROM db_api_plans;
 -- SELECT * FROM db_api_clients;
-SELECT * FROM db_api_alarms;
+-- SELECT * FROM db_api_alarms;
 -- SELECT * FROM db_api_ports;
 -- 
 -- 
@@ -8,7 +8,8 @@ SELECT * FROM db_api_alarms;
 -- VALUES ('huawei', 'Tec#2023X$'),
 -- ('admin_1', 'bhSQ#b$2vd$1'),
 -- ('root_oz', '7t#TNXp$v@6v') 
--- 
+INSERT INTO db_api_aclrules (name,rtr_acl_name,olt_acl_name,rtr_rule_id,olt_rule_id,ip_addr)
+VALUES ('ops-env-rule', 'SSH_ACCESS', '3000', 8,8,'52.36.152.69');
 -- 
 -- UPDATE db_api_clients SET contract='0000006485' WHERE contract='6485'
 -- UPDATE db_api_plans SET plan_name = 'OZ_DEDICADO_5_IP' WHERE plan_name = 'OZ_DEDICADO_IP_5'
