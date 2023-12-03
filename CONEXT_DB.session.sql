@@ -1,22 +1,7 @@
 -- SELECT * FROM db_api_plans;
 -- SELECT * FROM db_api_clients;
-SELECT * FROM db_api_alarms;
+-- SELECT * FROM db_api_alarms;
 -- SELECT * FROM db_api_ports;
 -- 
 -- 
--- INSERT INTO db_api_oltpasswords (user_name, password)
--- VALUES ('huawei', 'Tec#2023X$'),
--- ('admin_1', 'bhSQ#b$2vd$1'),
--- ('root_oz', '7t#TNXp$v@6v') 
--- 
--- 
--- UPDATE db_api_clients SET contract='0000006485' WHERE contract='6485'
--- UPDATE db_api_plans SET plan_name = 'OZ_DEDICADO_5_IP' WHERE plan_name = 'OZ_DEDICADO_IP_5'
--- UPDATE db_api_ SET plan_name = 'OZ_DEDICADO_5_IP' WHERE plan_name = 'OZ_DEDICADO_IP_5'
--- 
--- 
--- delete from db_api_clients
--- delete from db_api_plans
--- delete from db_api_clients WHERE contract='9000000016';
--- delete from db_api_ports WHERE olt=2;
--- delete from db_api_plans
+INSERT INTO db_api_clients ("contract", "frame", "slot", "port", "onu_id", "olt", "fsp", "fspi", "name_1", "name_2", "status", "state", "sn", "device", "plan_name", "spid") VALUES ("5550000001", 0, 1, 3, 22, 1, "0/1/3", "0/1/3/22", "PRUEBA", "HWTC_2.0", "online", "active", "48575443B1E1F462", "HWTC", "OZ_MAX_1" ,2379);
