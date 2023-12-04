@@ -53,19 +53,31 @@ def get_client(lookup_type, lookup_value):
 
     try:
         if lookup_type == "S":
-            serial=lookup_value[:-2]
-            olt=lookup_value[-1:]
-            client = Clients.objects.get(sn=serial,olt=olt)
+            serial = lookup_value["serial"]
+            olt = lookup_value["olt"]
+            client = (
+                Clients.objects.get(sn=serial, olt=olt)
+                if "*" != str(lookup_value["olt"])
+                else Clients.objects.get(sn=serial)
+            )
         if lookup_type == "C":
-            contract=lookup_value[:-2]
-            olt=lookup_value[-1:]
-            client = Clients.objects.get(contract=contract,olt=olt)
+            contract = lookup_value["contract"]
+            olt = lookup_value["olt"]
+            client = (
+                Clients.objects.get(contract=contract, olt=olt)
+                if "*" != str(lookup_value["olt"])
+                else Clients.objects.get(contract=contract)
+            )
         if lookup_type == "D":
-            # fix issue of db duplicates on same/diff olts
-            fspi=lookup_value[:-2]
-            olt=lookup_value[-1:]
-            client = Clients.objects.get(fspi=fspi, olt=olt)
+            fspi = lookup_value["fspi"]
+            olt = lookup_value["olt"]
+            client = (
+                Clients.objects.get(fspi=fspi, olt=olt)
+                if "*" != str(lookup_value["olt"])
+                else Clients.objects.get(fspi=fspi)
+            )
 
+        # IMPROVE WITH to_dict() CLASS OF CLIENT
         returned_client = client_to_dict(client)
         returned_client["srv_profile"] = returned_client["plan_name"].srv_profile
         returned_client["line_profile"] = returned_client["plan_name"].line_profile
@@ -83,23 +95,50 @@ def get_clients(lookup_type, lookup_value):
 
     if lookup_type == "DT":
         clients = (
-            Clients.objects.filter(state="deactivated")
-            .order_by("frame", "slot", "port", "onu_id")
-            .values()
+            (
+                Clients.objects.filter(state="deactivated", olt=lookup_value["olt"])
+                .order_by("frame", "slot", "port", "onu_id")
+                .values()
+            )
+            if "*" != str(lookup_value["olt"])
+            else (
+                Clients.objects.filter(state="deactivated")
+                .order_by("frame", "slot", "port", "onu_id")
+                .values()
+            )
         )
     if lookup_type == "CA":
         clients = (
-            Clients.objects.all().order_by("frame", "slot", "port", "onu_id").values()
+            (
+                Clients.objects.filter(olt=lookup_value["olt"])
+                .order_by("frame", "slot", "port", "onu_id")
+                .values()
+            )
+            if "*" != str(lookup_value["olt"])
+            else (
+                Clients.objects.all()
+                .order_by("frame", "slot", "port", "onu_id")
+                .values()
+            )
         )
     if lookup_type == "VT":
         clients = (
-            Clients.objects.all().order_by("frame", "slot", "port", "onu_id").values()
+            (
+                Clients.objects.filter(olt=lookup_value["olt"])
+                .order_by("frame", "slot", "port", "onu_id")
+                .values()
+            )
+            if "*" != str(lookup_value["olt"])
+            else (
+                Clients.objects.all()
+                .order_by("frame", "slot", "port", "onu_id")
+                .values()
+            )
         )
     if lookup_type == "VP":
-        # fix issue of db duplicates on same/diff olts
-        fsp=lookup_value[:-2]
-        olt=lookup_value[-1:]
-        clients = Clients.objects.filter(fsp=fsp,olt=olt).order_by("onu_id").values()
+        fsp = lookup_value["fsp"]
+        olt = lookup_value["olt"]
+        clients = Clients.objects.filter(fsp=fsp, olt=olt).order_by("onu_id").values()
 
     return {"message": "success", "data": list(clients), "error": False}
 
@@ -122,16 +161,31 @@ def modify_client(lookup_type, lookup_value, change_field, new_values):
 
     try:
         if lookup_type == "S":
-            client = Clients.objects.get(sn=lookup_value)
+            serial = lookup_value["serial"]
+            olt = lookup_value["olt"]
+            client = (
+                Clients.objects.get(sn=serial, olt=olt)
+                if "*" != str(lookup_value["olt"])
+                else Clients.objects.get(sn=serial)
+            )
             contract = client.contract
         if lookup_type == "C":
-            client = Clients.objects.get(contract=lookup_value)
+            contract = lookup_value["contract"]
+            olt = lookup_value["olt"]
+            client = (
+                Clients.objects.get(contract=contract, olt=olt)
+                if "*" != str(lookup_value["olt"])
+                else Clients.objects.get(contract=contract)
+            )
             contract = client.contract
         if lookup_type == "D":
-            # fix issue of db duplicates on same/diff olts
-            fspi=lookup_value[:-2]
-            olt=lookup_value[-1:]
-            client = Clients.objects.get(fspi=fspi, olt=olt)
+            fspi = lookup_value["fspi"]
+            olt = lookup_value["olt"]
+            client = (
+                Clients.objects.get(fspi=fspi, olt=olt)
+                if "*" != str(lookup_value["olt"])
+                else Clients.objects.get(fspi=fspi)
+            )
             contract = client.contract
 
         if change_field == "CT":
@@ -178,14 +232,29 @@ def delete_client(lookup_type, lookup_value):
         return {"message": "bad type", "data": None, "error": True}
     try:
         if lookup_type == "S":
-            client = Clients.objects.get(sn=lookup_value)
+            serial = lookup_value["serial"]
+            olt = lookup_value["olt"]
+            client = (
+                Clients.objects.get(sn=serial, olt=olt)
+                if "*" != str(lookup_value["olt"])
+                else Clients.objects.get(sn=serial)
+            )
         if lookup_type == "C":
-            client = Clients.objects.get(contract=lookup_value)
+            contract = lookup_value["contract"]
+            olt = lookup_value["olt"]
+            client = (
+                Clients.objects.get(contract=contract, olt=olt)
+                if "*" != str(lookup_value["olt"])
+                else Clients.objects.get(contract=contract)
+            )
         if lookup_type == "D":
-            # fix issue of db duplicates on same/diff olts
-            fspi=lookup_value[:-2]
-            olt=lookup_value[-1:]
-            client = Clients.objects.get(fspi=fspi, olt=olt)
+            fspi = lookup_value["fspi"]
+            olt = lookup_value["olt"]
+            client = (
+                Clients.objects.get(fspi=fspi, olt=olt)
+                if "*" != str(lookup_value["olt"])
+                else Clients.objects.get(fspi=fspi)
+            )
 
         returned_client = client_to_dict(client)
         returned_client["srv_profile"] = returned_client["plan_name"].srv_profile
