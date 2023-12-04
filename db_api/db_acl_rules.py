@@ -13,9 +13,11 @@ def add_rules(rules):
 # READ (ALL)
 def get_rules():
     rules = get_ms_ips()["data"]
+    print(rules)
     update_rules_ip(rules)
     alarms_db = ACLRules.objects.all()
     alarms = [alarm.to_dict() for alarm in alarms_db]
+    print(alarms)
     return {"message": "Success!", "error": False, "data": alarms}
 
 
@@ -27,7 +29,6 @@ def get_rule(name):
 
 # UPDATE
 def update_rules_ip(rules):
-    print(rules)
     for rule in rules:
         rule_db = ACLRules.objects.filter(name=rule['name'])[0]
         print(rule_db.to_dict())

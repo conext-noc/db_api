@@ -70,7 +70,8 @@ def get_ms_ips():
             env_ec2_ip = ec2_instances["Reservations"][0]["Instances"][0][
                 "PublicIpAddress"
             ]
-            ips.append({"name": f"{env_name}-rule", "new_ip_addr": env_ec2_ip})
+            if env_name != "db-api-env":
+                ips.append({"name": f"{env_name}-rule", "new_ip_addr": env_ec2_ip})
 
             # Check if the IP and name match the patterns
         return {
