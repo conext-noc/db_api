@@ -1,6 +1,8 @@
 from django.urls import path
 from db_api.views import (
+    CreateACLS,
     DbApi,
+    GetACLS,
     SignIn,
     AddUser,
     UpdateUser,
@@ -43,4 +45,6 @@ urlpatterns = [
     path("ms-health-check", MsHealthCheck.as_view()),
     path("populate", PopulateDB.as_view()),
     path("get-creds", Creds.as_view()),
+    path("get-acls", GetACLS.as_view()),
+    path("create-acls", CreateACLS.as_view()),
 ]
