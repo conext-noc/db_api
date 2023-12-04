@@ -55,15 +55,27 @@ def get_client(lookup_type, lookup_value):
         if lookup_type == "S":
             serial = lookup_value["serial"]
             olt = lookup_value["olt"]
-            client = Clients.objects.get(sn=serial, olt=olt)
+            client = (
+                Clients.objects.get(sn=serial, olt=olt)
+                if "*" != str(lookup_value["olt"])
+                else Clients.objects.get(sn=serial)
+            )
         if lookup_type == "C":
             contract = lookup_value["contract"]
             olt = lookup_value["olt"]
-            client = Clients.objects.get(contract=contract, olt=olt)
+            client = (
+                Clients.objects.get(contract=contract, olt=olt)
+                if "*" != str(lookup_value["olt"])
+                else Clients.objects.get(contract=contract)
+            )
         if lookup_type == "D":
             fspi = lookup_value["fspi"]
             olt = lookup_value["olt"]
-            client = Clients.objects.get(fspi=fspi, olt=olt)
+            client = (
+                Clients.objects.get(fspi=fspi, olt=olt)
+                if "*" != str(lookup_value["olt"])
+                else Clients.objects.get(fspi=fspi)
+            )
 
         # IMPROVE WITH to_dict() CLASS OF CLIENT
         returned_client = client_to_dict(client)
@@ -151,17 +163,29 @@ def modify_client(lookup_type, lookup_value, change_field, new_values):
         if lookup_type == "S":
             serial = lookup_value["serial"]
             olt = lookup_value["olt"]
-            client = Clients.objects.get(sn=serial, olt=olt)
+            client = (
+                Clients.objects.get(sn=serial, olt=olt)
+                if "*" != str(lookup_value["olt"])
+                else Clients.objects.get(sn=serial)
+            )
             contract = client.contract
         if lookup_type == "C":
             contract = lookup_value["contract"]
             olt = lookup_value["olt"]
-            client = Clients.objects.get(contract=contract, olt=olt)
+            client = (
+                Clients.objects.get(contract=contract, olt=olt)
+                if "*" != str(lookup_value["olt"])
+                else Clients.objects.get(contract=contract)
+            )
             contract = client.contract
         if lookup_type == "D":
             fspi = lookup_value["fspi"]
             olt = lookup_value["olt"]
-            client = Clients.objects.get(fspi=fspi, olt=olt)
+            client = (
+                Clients.objects.get(fspi=fspi, olt=olt)
+                if "*" != str(lookup_value["olt"])
+                else Clients.objects.get(fspi=fspi)
+            )
             contract = client.contract
 
         if change_field == "CT":
@@ -210,16 +234,27 @@ def delete_client(lookup_type, lookup_value):
         if lookup_type == "S":
             serial = lookup_value["serial"]
             olt = lookup_value["olt"]
-            client = Clients.objects.get(sn=serial, olt=olt)
+            client = (
+                Clients.objects.get(sn=serial, olt=olt)
+                if "*" != str(lookup_value["olt"])
+                else Clients.objects.get(sn=serial)
+            )
         if lookup_type == "C":
             contract = lookup_value["contract"]
             olt = lookup_value["olt"]
-            client = Clients.objects.get(contract=contract, olt=olt)
+            client = (
+                Clients.objects.get(contract=contract, olt=olt)
+                if "*" != str(lookup_value["olt"])
+                else Clients.objects.get(contract=contract)
+            )
         if lookup_type == "D":
             fspi = lookup_value["fspi"]
             olt = lookup_value["olt"]
-            client = Clients.objects.get(fspi=fspi, olt=olt)
-            client = Clients.objects.get(fspi=fspi, olt=olt)
+            client = (
+                Clients.objects.get(fspi=fspi, olt=olt)
+                if "*" != str(lookup_value["olt"])
+                else Clients.objects.get(fspi=fspi)
+            )
 
         returned_client = client_to_dict(client)
         returned_client["srv_profile"] = returned_client["plan_name"].srv_profile
