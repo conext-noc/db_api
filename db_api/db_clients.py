@@ -36,7 +36,7 @@ def add_client(data):
     data["plan_name"] = Plans.objects.get(plan_name=data["plan_name"])
     client = Clients(**data)
     client.save()
-    client = get_client("C", data["contract"])
+    client = get_client("C", {"contract":data["contract"], "olt":"*"})
     if client["message"] == "success":
         return {
             "data": client["data"],
