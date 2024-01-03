@@ -1,4 +1,3 @@
-from tkinter import NO
 from db_api.models import Ports
 
 
