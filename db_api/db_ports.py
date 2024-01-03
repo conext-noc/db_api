@@ -1,3 +1,4 @@
+from tkinter import NO
 from db_api.models import Ports
 
 
@@ -5,7 +6,6 @@ from db_api.models import Ports
 def add_ports(data):
     ports = data["ports"]
     for port in ports:
-        print(port)
         ports_db = Ports(**port)
         ports_db.save()
     return {"message": "successfully added ports", "error": False}
@@ -13,8 +13,10 @@ def add_ports(data):
 
 # READ
 def get_ports():
-    ports = Ports.objects.all().values()
-    return {"message": "success", "error": False, "data": list(ports)}
+    ports_db = Ports.objects.all()
+    ports = [port.to_object() for port in ports_db]
+    # add_oid(ports)
+    return {"message": "success", "error": False, "data": ports}
 
 
 # UPDATE

@@ -1,3 +1,4 @@
+from email.policy import default
 from django.db import models
 
 
@@ -90,6 +91,7 @@ class Ports(models.Model):
     olt = models.IntegerField(default=1)
     fspo = models.TextField(default="0/1/0-1", unique=True)
     is_open = models.BooleanField(default=False)
+    oid = models.TextField(default="")
 
     def to_object(self):
         return {
@@ -100,6 +102,7 @@ class Ports(models.Model):
             "olt": self.olt,
             "fspo": self.fspo,
             "is_open": self.is_open,
+            "oid": self.oid
         }
 
 
