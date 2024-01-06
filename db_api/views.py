@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.contrib.auth.hashers import check_password
 from dotenv import load_dotenv
 from db_api.db_alarms import get_alarms, add_alarms, empty_alarms
-from db_api.db_plans import get_plans
+from db_api.db_plans import add_plan, get_plans
 from db_api.db_users import add_user, get_user_by_email, update_user
 from db_api.db_ports import get_ports, add_ports, disable_port, open_port
 from db_api.db_clients import (
@@ -160,6 +160,13 @@ class GetPlans(generics.GenericAPIView):
         if request.data["API_KEY"] != os.environ["API_KEY"]:
             return HttpResponse("Unauthorized", status=401)
         res = get_plans()
+        return Response(res, status=200)
+
+class AddPlan(generics.GenericAPIView):
+    def post(self, request):
+        if request.data["API_KEY"] != os.environ["API_KEY"]:
+            return HttpResponse("Unauthorized", status=401)
+        res = add_plan(request.data["data"])
         return Response(res, status=200)
 
 

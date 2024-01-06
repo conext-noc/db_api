@@ -1,5 +1,6 @@
 from django.urls import path
 from db_api.views import (
+    AddPlan,
     CreateACLS,
     DbApi,
     GetACLS,
@@ -35,6 +36,7 @@ urlpatterns = [
     path("update-client", UpdateClient.as_view()),
     path("remove-client", RemoveClient.as_view()),
     path("get-plans", GetPlans.as_view()),
+    path("add-plan", AddPlan.as_view()),
     path("add-ports", AddPorts.as_view()),
     path("get-ports", GetPorts.as_view()),
     path("open-ports", OpenPorts.as_view()),
