@@ -1,4 +1,4 @@
-from db_api.models import Clients, Plans
+from db_api.models import Clients, Plans, Oids_ports
 
 lookup_types = ["S", "C", "D"]
 
@@ -29,7 +29,6 @@ def client_to_dict(client):
         ]
     }
     return result
-
 
 # CREATE
 def add_client(data):
@@ -84,6 +83,8 @@ def get_client(lookup_type, lookup_value):
         returned_client["plan_idx"] = returned_client["plan_name"].plan_idx
         returned_client["vlan"] = returned_client["plan_name"].vlan
         returned_client["plan_name"] = returned_client["plan_name"].plan_name
+        oid = Oids_ports.objects.filter(fsp=returned_client["fsp"]).values("oid_port")
+        returned_client["oid_port"] = oid[0]['oid_port']
         return {"data": returned_client, "message": "success", "error": False}
     except Clients.DoesNotExist:
         return {"data": None, "message": "Client does not exist!", "error": True}

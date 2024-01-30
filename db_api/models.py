@@ -156,3 +156,25 @@ class ACLRules(models.Model):
             "olt_rule_id":self.olt_rule_id,
             "ip_addr":self.ip_addr,
         }
+class Oids_ports(models.Model):
+    oid_port = models.TextField(primary_key=True, unique=True)
+    frame = models.IntegerField(default=0)
+    slot = models.IntegerField(default=1)
+    port = models.IntegerField(default=0)
+    fsp = models.TextField(default="0/0/0")
+    def to_dict(self):
+        return {
+            "oid_port":self.oid_port,
+            "frame":self.frame,
+            "slot":self.slot,
+            "port":self.port,
+            "fsp":self.fsp,
+        }
+class Oids(models.Model):
+    oid = models.TextField(default="null")
+    definition = models.TextField(primary_key=True, unique=True)
+    def to_dict(self):
+        return {
+            "oid":self.oid,
+            "definition":self.definition,
+        }

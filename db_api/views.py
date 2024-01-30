@@ -92,8 +92,8 @@ class MsHealthCheck(generics.GenericAPIView):
 class GetClient(generics.GenericAPIView):
     def post(self, request):
         data = request.data
-        if data["API_KEY"] != os.environ["API_KEY"]:
-            return HttpResponse("Unauthorized", status=401)
+        # if data["API_KEY"] != os.environ["API_KEY"]:
+            # return HttpResponse("Unauthorized", status=401)
         lookup_type = data["lookup_type"]
         lookup_value = data["lookup_value"]
         res = get_client(lookup_type, lookup_value)
