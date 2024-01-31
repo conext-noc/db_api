@@ -23,6 +23,7 @@ from db_api.views import (
     OpenPorts,
     DisablePorts,
     Creds,
+    Community,
 )
 
 urlpatterns = [
@@ -47,6 +48,7 @@ urlpatterns = [
     path("ms-health-check", MsHealthCheck.as_view()),
     path("populate", PopulateDB.as_view()),
     path("get-creds", Creds.as_view()),
+    path("get-comm", Community.as_view()),
     path("get-acls", GetACLS.as_view()),
     path("create-acls", CreateACLS.as_view()),
 ]

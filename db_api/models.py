@@ -178,3 +178,15 @@ class Oids(models.Model):
             "oid":self.oid,
             "definition":self.definition,
         }
+
+class SnmpPasswords(models.Model):
+    id = models.AutoField(primary_key=True, unique=True)
+    community = models.TextField(default="-")
+    password = models.TextField(default="-")
+
+    def to_object(self):
+        return {
+            "id": self.cred_id,
+            "community": self.community_username,
+            "password": self.community_password,
+        }

@@ -1,4 +1,4 @@
-from db_api.models import OltPasswords
+from db_api.models import OltPasswords,SnmpPasswords
 
 
 # # CREATE
@@ -12,6 +12,11 @@ from db_api.models import OltPasswords
 # READ
 def get_creds():
     creds = OltPasswords.objects.all().values()
+    return {"message": "Success!", "error": False, "data": list(creds)}
+
+# READ
+def get_community():
+    creds = SnmpPasswords.objects.all().values()
     return {"message": "Success!", "error": False, "data": list(creds)}
 
 
