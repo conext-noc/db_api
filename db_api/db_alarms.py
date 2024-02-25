@@ -17,8 +17,29 @@ def get_alarms():
     alarms = Alarms.objects.all().values()
     return {"message": "Success!", "error": False, "data": list(alarms)}
 
+# UPDATE
+def update_alarm(data):
+    alarms = data["alarms"]
+    for alarm in alarms:
+        old_alarm = Alarms.objects.get(contract=alarm["contract"])
+        old_alarm.last_down_time = alarm["last_down_time"]
+        old_alarm.last_down_date = alarm["last_down_date"]
+        old_alarm.save()
 
-# UPDATE - DELETE
+    return {"message": "Success!", "error": False}
+
+# UPDATE
+def remove_alarm(data):
+    alarms = data["alarms"]
+    for alarm in alarms:
+        old_alarm = Alarms.objects.get(contract=alarm["contract"])
+        old_alarm.delete()
+
+    return {"message": "Success!", "error": False}
+
+
+
+# DELETE ALL
 def empty_alarms():
     Alarms.objects.all().delete()
     return {"message": "Success!", "error": False}

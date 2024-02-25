@@ -4,7 +4,7 @@ from rest_framework import generics
 from django.http import HttpResponse
 from django.contrib.auth.hashers import check_password
 from dotenv import load_dotenv
-from db_api.db_alarms import get_alarms, add_alarms, empty_alarms
+from db_api.db_alarms import get_alarms, add_alarms, empty_alarms, update_alarm, remove_alarm
 from db_api.db_plans import add_plan, get_plans
 from db_api.db_users import add_user, get_user_by_email, update_user
 from db_api.db_ports import get_ports, add_ports, disable_port, open_port
@@ -184,6 +184,20 @@ class AddAlarms(generics.GenericAPIView):
         if req.data["API_KEY"] != os.environ["API_KEY"]:
             return HttpResponse("Unauthorized", status=401)
         res = add_alarms(req.data)
+        return Response(res, status=200)
+
+class UpdateAlarm(generics.GenericAPIView):
+    def post(self, req):
+        if req.data["API_KEY"] != os.environ["API_KEY"]:
+            return HttpResponse("Unauthorized", status=401)
+        res = update_alarm(req.data)
+        return Response(res, status=200)
+
+class RemoveAlarm(generics.GenericAPIView):
+    def post(self, req):
+        if req.data["API_KEY"] != os.environ["API_KEY"]:
+            return HttpResponse("Unauthorized", status=401)
+        res = remove_alarm(req.data)
         return Response(res, status=200)
 
 
